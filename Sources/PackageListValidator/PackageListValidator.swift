@@ -1,91 +1,5 @@
 import Foundation
 
-// MARK: Types
-
-enum Command: String {
-  case all
-  case diff
-  case mine
-}
-
-extension Command {
-  static func fromArguments(_ arguments: [String]) -> Command? {
-    for argument in arguments {
-      if let command = Command(rawValue: argument) {
-        return command
-      }
-    }
-    return nil
-  }
-}
-
-/**
- Simple Product structure from package dump
- */
-struct Product: Codable {
-  let name: String
-}
-
-/**
- Simple Package structure from package dump
- */
-struct Package: Codable {
-  let name: String
-  let products: [Product]
-}
-
-/**
- List of git hosts for which we can pull single files
- */
-enum GitHost: String {
-  case GitHub = "github.com"
-}
-
-/**
- List of possible errors for each package
- */
-enum PackageError: Error {
-  case noResult
-  case invalidURL(URL)
-  case unsupportedHost(String)
-  case readError(Error?)
-  case badDump(String?)
-  case decodingError(Error)
-  case missingProducts
-  case dumpTimeout
-
-  var friendlyName: String {
-    switch self {
-    case .noResult:
-      return "No Result"
-    case .invalidURL:
-      return "Invalid URL"
-    case .unsupportedHost:
-      return "Unsupported Host"
-    case .readError:
-      return "Download Failure"
-    case .badDump:
-      return "Invalid Dump"
-    case .decodingError:
-      return "Dump Decoding Error"
-    case .missingProducts:
-      return "No Products"
-    case .dumpTimeout:
-      return "Dump Timeout"
-    }
-  }
-}
-
-extension Result where Success == Void {
-  init(_ error: Failure?) {
-    if let error = error {
-      self = .failure(error)
-    } else {
-      self = .success(Void())
-    }
-  }
-}
-
 public struct Validator {
   // MARK: Configuration Values and Constants
 
@@ -145,7 +59,7 @@ public struct Validator {
     }
 
     switch host {
-    case .GitHub:
+    case .github:
       var rawURLComponents = Validator.rawURLComponentsBase
       let repositoryName = gitURL.deletingPathExtension().lastPathComponent
       let userName = gitURL.deletingLastPathComponent().lastPathComponent
@@ -411,7 +325,7 @@ public struct Validator {
     }
     if command == .mine {
       print("Validating Single Package.")
-      let directoryURL = CommandLine.arguments.dropFirst().first.flatMap { URL(fileURLWithPath: $0, isDirectory: true) } ?? currentDirectoryURL
+      let directoryURL = CommandLine.arguments[2...].first.flatMap { URL(fileURLWithPath: $0, isDirectory: true) } ?? currentDirectoryURL
       verifyPackageDump(at: directoryURL) { error in
         if let error = error {
           print(error)
