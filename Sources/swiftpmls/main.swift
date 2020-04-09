@@ -1,1 +1,3 @@
-print("hello world!")
+import PackageListValidator
+
+Validator.main()
