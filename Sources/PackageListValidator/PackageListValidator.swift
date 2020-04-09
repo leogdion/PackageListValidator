@@ -105,7 +105,7 @@ public struct Validator {
 
   static let httpMaximumConnectionsPerHost = 10
 
-  static let displayProgress = true
+  static let displayProgress = false
 
   static let processTimeout = 50.0
 
@@ -395,7 +395,7 @@ public struct Validator {
 
   static let decoder = JSONDecoder()
 
-  public static func main() {
+  public static func main() -> Never {
     let session = URLSession(configuration: config)
 
     let currentDirectoryURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
@@ -506,6 +506,9 @@ public struct Validator {
         }
       }
     }
+    let semaphore = DispatchSemaphore(value: 0)
+    semaphore.wait()
+    exit(1)
   }
 
   // RunLoop.main.run()
