@@ -1,0 +1,3 @@
+[submodule "SwiftPMLibrary"]
+	path = SwiftPMLibrary
+	url = https://github.com/brightdigit/SwiftPMLibrary.git
