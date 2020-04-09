@@ -1,3 +1,3 @@
 struct PackageListValidator {
-    var text = "Hello, World!"
+  var text = "Hello, World!"
 }
