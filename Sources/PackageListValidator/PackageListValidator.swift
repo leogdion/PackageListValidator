@@ -202,14 +202,15 @@ public struct All: ParsableCommand {
 
     let semaphore = DispatchSemaphore(value: 0)
     print("Checking each url for valid package dump.")
-    let promise = try ObsoleteValidator.filterRepos(packageUrls, withSession: session, includingMaster: true).then { urls in
-      ObsoleteValidator.parseRepos(urls, withSession: session)
-    }
-    
-    DispatchQueue.global().async {
-      try! promise.wait()
+    firstly {
+      return try ObsoleteValidator.filterRepos(packageUrls, withSession: session, includingMaster: true)
+    }.then { (urls) in
+      return ObsoleteValidator.parseRepos(urls, withSession: session)
+    }.done { (report) in
       semaphore.signal()
     }
+    
+    RunLoop.main.run()
     semaphore.wait()
 //      ObsoleteValidator.filterRepos(packageUrls, withSession: session, includingMaster: true)
 //        .then {
