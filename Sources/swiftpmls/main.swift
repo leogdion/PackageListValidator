@@ -1,3 +1,3 @@
 import PackageListValidator
 
-Validator.main()
+PackageListValidator.main()
