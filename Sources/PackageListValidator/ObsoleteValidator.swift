@@ -1,15 +1,16 @@
-import PromiseKit
 import Foundation
+import PromiseKit
 
 extension Promise {
   func timeout(after seconds: TimeInterval, withError error: Error) -> Promise<T> {
-        return race(asVoid(), after(seconds: seconds).done {
-            throw error
+    race(asVoid(), after(seconds: seconds).done {
+      throw error
         }).map {
-            self.value!
-        }
+      self.value!
     }
+  }
 }
+
 struct RepoDetail {
   let firstProduct: Product
   let package: Package
@@ -21,7 +22,6 @@ struct RepoDetail {
     self.firstProduct = firstProduct
     self.package = package
   }
-
 }
 
 struct RepoUrlReport {
@@ -102,20 +102,20 @@ public struct ObsoleteValidator {
   }
 
   static func download(_ packageSwiftURL: URL, withSession session: URLSession) -> Promise<URL> {
-    return Promise<Data> { (resolver) in
-    debugPrint("Downloading \(packageSwiftURL)")
+    Promise<Data> { resolver in
+      debugPrint("Downloading \(packageSwiftURL)")
       session.dataTask(with: packageSwiftURL) {
         resolver.resolve($2, $0)
       }.resume()
-    }.then { (data) in
-      return Promise { (resolver) in
-        let result = Result{try directoryForData(data)}
+    }.then { data in
+      Promise { resolver in
+        let result = Result { try directoryForData(data) }
         resolver.resolve(result)
       }
     }
   }
-  
-  static func directoryForData (_ data: Data) throws -> URL {
+
+  static func directoryForData(_ data: Data) throws -> URL {
     let temporaryDirectoryURL: URL
     if #available(OSX 10.12, *) {
       temporaryDirectoryURL = FileManager.default.temporaryDirectory
@@ -129,6 +129,7 @@ public struct ObsoleteValidator {
     try data.write(to: outputDirURL.appendingPathComponent("Package.swift"))
     return outputDirURL
   }
+
   /**
    Downloads the given Package.swift file
    - Parameter packageSwiftURL: URL to Package.Swift
@@ -185,12 +186,12 @@ public struct ObsoleteValidator {
     process.standardError = errorPipe
     return process
   }
-  
+
   static func verifyPackageDump(at directoryURL: URL) -> Promise<RepoDetail> {
-    let processPromise = Promise<RepoDetail> { (resolver) in
-    let pipe = Pipe()
-    let errorPipe = Pipe()
-    let process = dumpPackageProcessAt(directoryURL, outputTo: pipe, errorsTo: errorPipe)
+    let processPromise = Promise<RepoDetail> { resolver in
+      let pipe = Pipe()
+      let errorPipe = Pipe()
+      let process = dumpPackageProcessAt(directoryURL, outputTo: pipe, errorsTo: errorPipe)
       process.terminationHandler = {
         _ in
         let package: Package
@@ -212,7 +213,7 @@ public struct ObsoleteValidator {
           resolver.reject(PackageError.decodingError(error))
           return
         }
-        
+
         do {
           resolver.fulfill(try RepoDetail(package: package))
         } catch {
@@ -226,11 +227,8 @@ public struct ObsoleteValidator {
 //        }
 //        callback(nil)
       }
-      
     }
     return processPromise.timeout(after: processTimeout, withError: PackageError.dumpTimeout)
-    
-    
   }
 
   /**
@@ -281,15 +279,15 @@ public struct ObsoleteValidator {
     }
   }
 
-  static func verifyPackage(at gitURL: URL, withSession session: URLSession) -> Promise<RepoUrlReport>  {
-    firstly{
-      return download(gitURL, withSession: session)
-    }.then { (downloadURL) in
-      return verifyPackageDump(at: downloadURL)
-    }.map { (detail)  in
-      return RepoUrlReport(url: gitURL, result: .success(detail))
-    }.recover(only: PackageError.self) { (error)  in
-      return Guarantee {
+  static func verifyPackage(at gitURL: URL, withSession session: URLSession) -> Promise<RepoUrlReport> {
+    firstly {
+      download(gitURL, withSession: session)
+    }.then { downloadURL in
+      verifyPackageDump(at: downloadURL)
+    }.map { detail in
+      RepoUrlReport(url: gitURL, result: .success(detail))
+    }.recover(only: PackageError.self) { error in
+      Guarantee {
         $0(RepoUrlReport(url: gitURL, result: .failure(error)))
       }
     }
