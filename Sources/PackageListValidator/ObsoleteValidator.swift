@@ -1,5 +1,24 @@
 import Foundation
 
+struct RepoDetail {
+  let firstProduct: Product
+  let package: Package
+
+  init?(package: Package) {
+    guard let firstProduct = package.products.first else {
+      return nil
+    }
+    self.firstProduct = firstProduct
+    self.package = package
+  }
+}
+
+struct RepoUrlReport {
+  let url: URL
+  let result: Result<RepoDetail, PackageError>
+}
+
+import PromiseKit
 @available(*, deprecated)
 public struct ObsoleteValidator {
   // MARK: Configuration Values and Constants
@@ -177,6 +196,8 @@ public struct ObsoleteValidator {
     }
   }
 
+  static func verifyPackage(at _: URL, withSession _: URLSession) {}
+
   /**
    Verifies Swift package at repository URL.
    - Parameter gitURL: URL to git repository
@@ -207,6 +228,14 @@ public struct ObsoleteValidator {
         processSemaphore.signal()
         callback(error)
         return
+      }
+    }
+  }
+
+  static func filterRepos(_ packageUrls: [URL], withSession session: URLSession, includingMaster: Bool) -> Promise<[URL]> {
+    Promise { resolver in
+      filterRepos(packageUrls, withSession: session, includingMaster: includingMaster) { result in
+        resolver.resolve(result)
       }
     }
   }
@@ -245,11 +274,21 @@ public struct ObsoleteValidator {
     }.resume()
   }
 
+  static func parseRepos(_ packageUrls: [URL], withSession _: URLSession) -> Promise<[Any]> {
+    let promises = packageUrls.map { _ in
+      Promise<Any> { _ in
+      }
+    }
+
+    return when(fulfilled: promises)
+  }
+
   /**
    Iterate over all repositories in the packageUrls list .
    - Parameter packageUrls: current package urls
    - Parameter completion: Callback with a dictionary of each url with an error.
    */
+  @available(*, deprecated)
   static func parseRepos(_ packageUrls: [URL], withSession session: URLSession, _ completion: @escaping (([URL: PackageError]) -> Void)) {
     let group = DispatchGroup()
     let logEachRepo = packageUrls.count < 8
