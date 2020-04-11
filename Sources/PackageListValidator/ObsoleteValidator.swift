@@ -93,7 +93,7 @@ public struct ObsoleteValidator {
 
   static let httpMaximumConnectionsPerHost = 10
 
-  static let displayProgress = false
+  static let displayProgress = true
 
   static let processTimeout = 10.0
 
@@ -207,6 +207,7 @@ public struct ObsoleteValidator {
           } else {
             error = .badDump(String(data: errorPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8))
           }
+          debugPrint(error)
           resolver.reject(error)
           return
         }
@@ -237,13 +238,11 @@ public struct ObsoleteValidator {
       }
       //processSemaphore.wait()
 
-      debugPrint("Verifying Dump...")
       process.launch()
     }
     return processPromise.timeout(after: processTimeout, withError: PackageError.dumpTimeout).ensure {
       if process.isRunning {
         process.terminate()
-        debugPrint("Verifying Dump Failed")
       }
       //processSemaphore.signal()
       //debugPrint("Verifying Dump Completed")
@@ -256,9 +255,11 @@ public struct ObsoleteValidator {
     }.then { downloadURL in
       verifyPackageDump(at: downloadURL, withDecoder: decoder)
     }.map { detail in
-      RepoUrlReport(url: gitURL, result: .success(detail))
-    }.recover(only: PackageError.self) { error in
-      Guarantee {
+      debugPrint("Verified \(gitURL)")
+      return RepoUrlReport(url: gitURL, result: .success(detail))
+    }.recover(only: PackageError.self) { error -> Guarantee<RepoUrlReport> in
+      debugPrint("Failed \(gitURL): \(error.friendlyName)")
+      return Guarantee {
         $0(RepoUrlReport(url: gitURL, result: .failure(error)))
       }
     }
