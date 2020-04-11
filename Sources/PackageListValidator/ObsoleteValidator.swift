@@ -95,7 +95,7 @@ public struct ObsoleteValidator {
 
   static let displayProgress = true
 
-  static let processTimeout = 10.0
+  static let processTimeout = 1.0
 
   static let helpText = """
   usage: %@ <command> [path]
@@ -225,6 +225,7 @@ public struct ObsoleteValidator {
           }
           debugPrint(error)
           resolver.reject(error)
+          processSemaphore.signal()
           return
         }
 
@@ -233,6 +234,7 @@ public struct ObsoleteValidator {
           package = try decoder.decode(Package.self, from: pipe.fileHandleForReading.readDataToEndOfFile())
         } catch {
           resolver.reject(PackageError.decodingError(error))
+          processSemaphore.signal()
           return
         }
 
@@ -241,32 +243,36 @@ public struct ObsoleteValidator {
           repoDetail = try RepoDetail(package: package)
         } catch {
           resolver.reject(error)
+          processSemaphore.signal()
           return
         }
 
         resolver.fulfill(repoDetail)
-//
-//        guard package.products.count > 0 else {
-//          (.missingProducts)
-//          return
-//        }
-//        callback(nil)
+        processSemaphore.signal()
       }
-      //processSemaphore.wait()
-      processSemaphore.wait()
-      debugPrint(directoryURL.lastPathComponent)
-      process.launch()
-    }
-    
-    let timeout = after(seconds: processTimeout).done {
-      processSemaphore.signal()
-      throw PackageError.dumpTimeout
+      
+      
     }
 
+    processSemaphore.wait()
+    process.launch()
     
-    return race(processPromise.asVoid(), timeout).map{
-      return processPromise.value!
+    DispatchQueue.main.asyncAfter(deadline: .now() + processTimeout){
+      process.terminate()
     }
+    
+    return processPromise
+    
+    
+//  debugPrint(directoryURL.lastPathComponent)
+//    let timeout =
+//    after(seconds: processTimeout)
+//
+//    return  timeout.then({
+//      return Promise<RepoUrlReport>.init(error: PackageError.dumpTimeout)
+//      })
+
+    
   }
 
   static func verifyPackage(at gitURL: URL, withSession session: URLSession, usingDecoder decoder: JSONDecoder) -> Promise<RepoUrlReport> {
