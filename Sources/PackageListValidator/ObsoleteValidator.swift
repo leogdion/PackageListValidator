@@ -304,44 +304,19 @@ public struct ObsoleteValidator {
       }
     }
   }
-
-  static func filterRepos(_ packageUrls: [URL], withSession session: URLSession, usingDecoder decoder: JSONDecoder, includingMaster: Bool) -> Promise<[URL]> {
-    Promise { resolver in
-      guard !includingMaster else {
-        resolver.fulfill(packageUrls)
-        return
-      }
-
-      fetchMasterList(withSession: session, andDecoder: decoder).done {
-        resolver.fulfill($0)
-      }
-//      return
-//      session.dataTask(with: ObsoleteValidator.masterPackageList) { data, _, error in
 //
-//        let allPackageURLs: [URL]
-//        guard let data = data else {
-//          completion(.failure(PackageError.noResult))
-//          return
-//        }
-//
-//        if let error = error {
-//          completion(.failure(error))
-//          return
-//        }
-//
-//        do {
-//          allPackageURLs = try ObsoleteValidator.decoder.decode([URL].self, from: data)
-//        } catch {
-//          completion(.failure(error))
-//          return
-//        }
-//        completion(.success([URL](Set<URL>(packageUrls).subtracting(allPackageURLs))))
-//      }.resume()
-//      filterRepos(packageUrls, withSession: session, includingMaster: includingMaster) { result in
-//        resolver.resolve(result)
+//  static func filterRepos(_ packageUrls: [URL], withSession session: URLSession, usingDecoder decoder: JSONDecoder, includingMaster: Bool) -> Promise<[URL]> {
+//    Promise { resolver in
+//      guard !includingMaster else {
+//        resolver.fulfill(packageUrls)
+//        return
 //      }
-    }
-  }
+//
+//      fetchMasterList(withSession: session, andDecoder: decoder).done {
+//        resolver.fulfill($0)
+//      }
+//    }
+//  }
 
   /**
    Filters repositories based what is not listen in the master list.

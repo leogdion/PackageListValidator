@@ -28,3 +28,5 @@ jobs:
       run: bash <(curl https://codecov.io/bash) -F github -F bionic -n ${{ github.sha }}
       env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    - name : Test Validation
+      run : swift run swiftpmls all SwiftPMLibrary/packages.json
