@@ -51,7 +51,7 @@ public struct ObsoleteValidator {
 
   static let displayProgress = false
 
-  static let processTimeout = 50.0
+  static let processTimeout = 10.0
 
   static let helpText = """
   usage: %@ <command> [path]
@@ -71,6 +71,8 @@ public struct ObsoleteValidator {
     config.httpMaximumConnectionsPerHost = httpMaximumConnectionsPerHost
     return config
   }()
+
+  static let processSemaphore = DispatchSemaphore(value: semaphoreCount)
 
   // MARK: Functions
 
@@ -93,7 +95,8 @@ public struct ObsoleteValidator {
       var rawURLComponents = ObsoleteValidator.rawURLComponentsBase
       let repositoryName = gitURL.deletingPathExtension().lastPathComponent
       let userName = gitURL.deletingLastPathComponent().lastPathComponent
-      rawURLComponents.path = ["", userName, repositoryName, "master", "Package.swift"].joined(separator: "/")
+      let branchName = "master"
+      rawURLComponents.path = ["", userName, repositoryName, branchName, "Package.swift"].joined(separator: "/")
       guard let packageSwiftURL = rawURLComponents.url else {
         return .failure(.invalidURL(gitURL))
       }
@@ -103,7 +106,6 @@ public struct ObsoleteValidator {
 
   static func download(_ packageSwiftURL: URL, withSession session: URLSession) -> Promise<URL> {
     Promise<Data> { resolver in
-      debugPrint("Downloading \(packageSwiftURL)")
       session.dataTask(with: packageSwiftURL) {
         resolver.resolve($2, $0)
       }.resume()
@@ -117,54 +119,13 @@ public struct ObsoleteValidator {
 
   static func directoryForData(_ data: Data) throws -> URL {
     let temporaryDirectoryURL: URL
-    if #available(OSX 10.12, *) {
-      temporaryDirectoryURL = FileManager.default.temporaryDirectory
-    } else {
-      // Fallback on earlier versions
-      temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())
-    }
+    temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())
+
     let outputDirURL = temporaryDirectoryURL.appendingPathComponent(UUID().uuidString)
 
     try FileManager.default.createDirectory(at: outputDirURL, withIntermediateDirectories: false, attributes: nil)
-    try data.write(to: outputDirURL.appendingPathComponent("Package.swift"))
+    try data.write(to: outputDirURL.appendingPathComponent("Package.swift"), options: .atomic)
     return outputDirURL
-  }
-
-  /**
-   Downloads the given Package.swift file
-   - Parameter packageSwiftURL: URL to Package.Swift
-   - Parameter session: URLSession
-   - Parameter callback: Completion callback. If successful, the resulting location of the downloaded Package.swift file; error otherwise.
-   */
-  static func download(_ packageSwiftURL: URL, withSession session: URLSession, _ callback: @escaping ((Result<URL, PackageError>) -> Void)) -> URLSessionDataTask {
-    let task = session.dataTask(with: packageSwiftURL) { data, _, error in
-
-      guard let data = data else {
-        callback(.failure(.readError(error)))
-        return
-      }
-
-      let temporaryDirectoryURL: URL
-      if #available(OSX 10.12, *) {
-        temporaryDirectoryURL = FileManager.default.temporaryDirectory
-      } else {
-        // Fallback on earlier versions
-        temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())
-      }
-      let outputDirURL = temporaryDirectoryURL.appendingPathComponent(UUID().uuidString)
-
-      try! FileManager.default.createDirectory(at: outputDirURL, withIntermediateDirectories: false, attributes: nil)
-
-      do {
-        try data.write(to: outputDirURL.appendingPathComponent("Package.swift"), options: .atomic)
-      } catch {
-        callback(.failure(.readError(error)))
-        return
-      }
-      callback(.success(outputDirURL))
-    }
-    task.resume()
-    return task
   }
 
   /**
@@ -187,14 +148,13 @@ public struct ObsoleteValidator {
     return process
   }
 
-  static func verifyPackageDump(at directoryURL: URL) -> Promise<RepoDetail> {
+  static func verifyPackageDump(at directoryURL: URL, withDecoder decoder: JSONDecoder) -> Promise<RepoDetail> {
+    let pipe = Pipe()
+    let errorPipe = Pipe()
+    let process = dumpPackageProcessAt(directoryURL, outputTo: pipe, errorsTo: errorPipe)
     let processPromise = Promise<RepoDetail> { resolver in
-      let pipe = Pipe()
-      let errorPipe = Pipe()
-      let process = dumpPackageProcessAt(directoryURL, outputTo: pipe, errorsTo: errorPipe)
       process.terminationHandler = {
         _ in
-        let package: Package
 
         guard process.terminationStatus == 0 else {
           let error: PackageError
@@ -207,19 +167,23 @@ public struct ObsoleteValidator {
           return
         }
 
+        let package: Package
         do {
-          package = try self.decoder.decode(Package.self, from: pipe.fileHandleForReading.readDataToEndOfFile())
+          package = try decoder.decode(Package.self, from: pipe.fileHandleForReading.readDataToEndOfFile())
         } catch {
           resolver.reject(PackageError.decodingError(error))
           return
         }
 
+        let repoDetail: RepoDetail
         do {
-          resolver.fulfill(try RepoDetail(package: package))
+          repoDetail = try RepoDetail(package: package)
         } catch {
           resolver.reject(error)
           return
         }
+
+        resolver.fulfill(repoDetail)
 //
 //        guard package.products.count > 0 else {
 //          (.missingProducts)
@@ -227,63 +191,26 @@ public struct ObsoleteValidator {
 //        }
 //        callback(nil)
       }
+      processSemaphore.wait()
+
+      debugPrint("Verifying Dump...")
+      process.launch()
     }
-    return processPromise.timeout(after: processTimeout, withError: PackageError.dumpTimeout)
-  }
-
-  /**
-   Calls `swift package dump-package` and verify correct output with at least one product.
-   - Parameter directoryURL: File URL to Package
-   */
-  static func verifyPackageDump(at directoryURL: URL, _ callback: @escaping ((PackageError?) -> Void)) {
-    let pipe = Pipe()
-    let errorPipe = Pipe()
-    let process = dumpPackageProcessAt(directoryURL, outputTo: pipe, errorsTo: errorPipe)
-
-    process.terminationHandler = {
-      process in
-
-      let package: Package
-
-      guard process.terminationStatus == 0 else {
-        let error: PackageError
-        if process.terminationStatus == 15 {
-          error = .dumpTimeout
-        } else {
-          error = .badDump(String(data: errorPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8))
-        }
-        callback(error)
-        return
-      }
-
-      do {
-        package = try self.decoder.decode(Package.self, from: pipe.fileHandleForReading.readDataToEndOfFile())
-      } catch {
-        callback(.decodingError(error))
-        return
-      }
-
-      guard package.products.count > 0 else {
-        callback(.missingProducts)
-        return
-      }
-      callback(nil)
-    }
-
-    process.launch()
-
-    DispatchQueue.main.asyncAfter(deadline: .now() + ObsoleteValidator.processTimeout) {
+    return processPromise.timeout(after: processTimeout, withError: PackageError.dumpTimeout).ensure {
       if process.isRunning {
         process.terminate()
+        debugPrint("Verifying Dump Failed")
       }
+      processSemaphore.signal()
+      debugPrint("Verifying Dump Completed")
     }
   }
 
-  static func verifyPackage(at gitURL: URL, withSession session: URLSession) -> Promise<RepoUrlReport> {
+  static func verifyPackage(at gitURL: URL, withSession session: URLSession, usingDecoder decoder: JSONDecoder) -> Promise<RepoUrlReport> {
     firstly {
       download(gitURL, withSession: session)
     }.then { downloadURL in
-      verifyPackageDump(at: downloadURL)
+      verifyPackageDump(at: downloadURL, withDecoder: decoder)
     }.map { detail in
       RepoUrlReport(url: gitURL, result: .success(detail))
     }.recover(only: PackageError.self) { error in
@@ -293,45 +220,55 @@ public struct ObsoleteValidator {
     }
   }
 
-  /**
-   Verifies Swift package at repository URL.
-   - Parameter gitURL: URL to git repository
-   */
-  static func verifyPackage(at gitURL: URL, withSession session: URLSession, _ callback: @escaping ((PackageError?) -> Void)) {
-    let processSemaphore = DispatchSemaphore(value: ObsoleteValidator.semaphoreCount)
-    let urlResult = getPackageSwiftURL(for: gitURL)
-    let packageSwiftURL: URL
-    switch urlResult {
-    case let .success(url): packageSwiftURL = url
-    case let .failure(error):
-      callback(error)
-      return
-    }
-    _ = download(packageSwiftURL, withSession: session) { result in
-      let outputDirURL: URL
-
-      switch result {
-      case let .failure(error):
-        callback(error)
-        return
-      case let .success(url):
-        outputDirURL = url
-      }
-      processSemaphore.wait()
-      ObsoleteValidator.self.verifyPackageDump(at: outputDirURL) {
-        error in
-        processSemaphore.signal()
-        callback(error)
-        return
+  static func fetchMasterList(withSession session: URLSession, andDecoder decoder: JSONDecoder) -> Promise<[URL]> {
+    Promise {
+      resolver in
+      session.dataTask(with: ObsoleteValidator.masterPackageList) {
+        resolver.resolve($0, $2)
+      }.resume()
+    }.then {
+      data in
+      Promise {
+        $0.resolve(Result { try decoder.decode([URL].self, from: data) })
       }
     }
   }
 
-  static func filterRepos(_ packageUrls: [URL], withSession session: URLSession, includingMaster: Bool) -> Promise<[URL]> {
+  static func filterRepos(_ packageUrls: [URL], withSession session: URLSession, usingDecoder decoder: JSONDecoder, includingMaster: Bool) -> Promise<[URL]> {
     Promise { resolver in
-      filterRepos(packageUrls, withSession: session, includingMaster: includingMaster) { result in
-        resolver.resolve(result)
+      guard !includingMaster else {
+        resolver.fulfill(packageUrls)
+        return
       }
+
+      fetchMasterList(withSession: session, andDecoder: decoder).done {
+        resolver.fulfill($0)
+      }
+//      return
+//      session.dataTask(with: ObsoleteValidator.masterPackageList) { data, _, error in
+//
+//        let allPackageURLs: [URL]
+//        guard let data = data else {
+//          completion(.failure(PackageError.noResult))
+//          return
+//        }
+//
+//        if let error = error {
+//          completion(.failure(error))
+//          return
+//        }
+//
+//        do {
+//          allPackageURLs = try ObsoleteValidator.decoder.decode([URL].self, from: data)
+//        } catch {
+//          completion(.failure(error))
+//          return
+//        }
+//        completion(.success([URL](Set<URL>(packageUrls).subtracting(allPackageURLs))))
+//      }.resume()
+//      filterRepos(packageUrls, withSession: session, includingMaster: includingMaster) { result in
+//        resolver.resolve(result)
+//      }
     }
   }
 
@@ -340,93 +277,14 @@ public struct ObsoleteValidator {
    - Parameter packageUrls: current package urls
    - Parameter includingMaster: to not filter all repository url and just verify all package URLs
    */
-  static func filterRepos(_ packageUrls: [URL], withSession session: URLSession, includingMaster: Bool, _ completion: @escaping ((Result<[URL], Error>) -> Void)) {
-    guard !includingMaster else {
-      completion(.success(packageUrls))
-      return
-    }
+  static func filterRepos(_: [URL], withSession _: URLSession, includingMaster _: Bool, _: @escaping ((Result<[URL], Error>) -> Void)) {}
 
-    session.dataTask(with: ObsoleteValidator.masterPackageList) { data, _, error in
-
-      let allPackageURLs: [URL]
-      guard let data = data else {
-        completion(.failure(PackageError.noResult))
-        return
-      }
-
-      if let error = error {
-        completion(.failure(error))
-        return
-      }
-
-      do {
-        allPackageURLs = try ObsoleteValidator.decoder.decode([URL].self, from: data)
-      } catch {
-        completion(.failure(error))
-        return
-      }
-      completion(.success([URL](Set<URL>(packageUrls).subtracting(allPackageURLs))))
-    }.resume()
-  }
-
-  static func parseRepos(_ packageUrls: [URL], withSession session: URLSession) -> Promise<[RepoUrlReport]> {
+  static func parseRepos(_ packageUrls: [URL], withSession session: URLSession, usingDecoder decoder: JSONDecoder) -> Promise<[RepoUrlReport]> {
     let promises = packageUrls.map {
-      verifyPackage(at: $0, withSession: session)
+      verifyPackage(at: $0, withSession: session, usingDecoder: decoder)
     }
 
     return when(fulfilled: promises)
-  }
-
-  /**
-   Iterate over all repositories in the packageUrls list .
-   - Parameter packageUrls: current package urls
-   - Parameter completion: Callback with a dictionary of each url with an error.
-   */
-  @available(*, deprecated)
-  static func parseRepos(_ packageUrls: [URL], withSession session: URLSession, _ completion: @escaping (([URL: PackageError]) -> Void)) {
-    let group = DispatchGroup()
-    let logEachRepo = packageUrls.count < 8
-    let concurrentQueue = DispatchQueue(label: "swiftpm-verification", qos: .utility, attributes: .concurrent)
-    var count = 0
-    var packageUnsetResults = [Result<Void, PackageError>?].init(repeating: nil, count: packageUrls.count)
-    for (index, gitURL) in packageUrls.enumerated() {
-      group.enter()
-      concurrentQueue.async {
-        if logEachRepo {
-          print("Checking", [String](gitURL.pathComponents.suffix(2)).joined(separator: "/"), "...")
-        }
-        self.verifyPackage(at: gitURL, withSession: session) {
-          error in
-          packageUnsetResults[index] = Result<Void, PackageError>(error)
-
-          if ObsoleteValidator.displayProgress && ObsoleteValidator.logEveryCount < packageUnsetResults.count {
-            DispatchQueue.main.async {
-              count += 1
-              if count % (packageUnsetResults.count / ObsoleteValidator.logEveryCount) == 0 {
-                print(".", terminator: "")
-              }
-            }
-          } else if error == nil {
-            print(gitURL, "passed")
-          }
-          group.leave()
-        }
-      }
-    }
-
-    group.notify(queue: .main) {
-      var errors = [URL: PackageError]()
-      zip(packageUrls, packageUnsetResults).forEach { args in
-        let (url, unSetResult) = args
-        let result = unSetResult ?? .failure(.noResult)
-        guard case let .failure(error) = result else {
-          return
-        }
-        errors[url] = error
-      }
-
-      completion(errors)
-    }
   }
 
   /**
@@ -440,124 +298,6 @@ public struct ObsoleteValidator {
   }
 
   // MARK: Running Code
-
-  static let decoder = JSONDecoder()
-
-  public static func main() -> Never {
-    let session = URLSession(configuration: config)
-
-    let currentDirectoryURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
-
-    // Find the "packages.json" file based on arguments, current directory, or the directory of the script
-    let packagesJsonURL = url(packagesFromDirectories: [currentDirectoryURL, URL(fileURLWithPath: #file).deletingLastPathComponent()], andArguments: CommandLine.arguments)
-
-    // parse the command argument subcommand
-    let commandArg = ObsoleteCommand.fromArguments(CommandLine.arguments)
-    guard let command = commandArg else {
-      print(String(format: helpText, CommandLine.arguments.first?.components(separatedBy: "/").last ?? "validate.sh"))
-      exit(0)
-    }
-    if command == .mine {
-      print("Validating Single Package.")
-      let directoryURL = CommandLine.arguments[2...].first.flatMap { URL(fileURLWithPath: $0, isDirectory: true) } ?? currentDirectoryURL
-      verifyPackageDump(at: directoryURL) { error in
-        if let error = error {
-          print(error)
-          exit(1)
-        }
-        print("Validation Succeeded.")
-        exit(0)
-      }
-    } else {
-      // Based on arguments find the `package.json` file
-      guard let url = packagesJsonURL else {
-        print("Error: Unable to find packages.json to validate.")
-        exit(1)
-      }
-
-      let data = try! Data(contentsOf: url)
-      let packageUrls = try! decoder.decode([URL].self, from: data)
-
-      // Make sure all urls contain the .git extension
-      print("Checking all urls are valid.")
-      let invalidUrls = packageUrls.filter { $0.pathExtension != "git" }
-
-      guard invalidUrls.count == 0 else {
-        print("Invalid URLs missing .git extension: \(invalidUrls)")
-        exit(1)
-      }
-
-      // Make sure there are no dupes (no dupe variants w/ .git and w/o, no case differences)
-      print("Checking for duplicate packages.")
-      let urlCounts = Dictionary(grouping: packageUrls.enumerated()) {
-        URL(string: $0.element.absoluteString.lowercased())!
-      }.mapValues { $0.map { $0.offset } }.filter { $0.value.count > 1 }
-
-      guard urlCounts.count == 0 else {
-        print("Error: Duplicate URLs:\n\(urlCounts)")
-        exit(1)
-      }
-
-      // Sort the array of urls
-      print("Checking packages are sorted.")
-      let sortedUrls = packageUrls.sorted {
-        $0.absoluteString.lowercased() < $1.absoluteString.lowercased()
-      }
-
-      // Verify that there are no differences between the current JSON and the sorted JSON
-      let unsortedUrls = zip(packageUrls, sortedUrls).enumerated().filter { $0.element.0 != $0.element.1 }.map {
-        ($0.offset, $0.element.0)
-      }
-
-      guard unsortedUrls.count == 0 else {
-        // If the sorting fails, save the sorted packages.json file
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted]
-        let data = try! encoder.encode(sortedUrls)
-        let str = String(data: data, encoding: .utf8)!.replacingOccurrences(of: "\\/", with: "/")
-        let unescapedData = str.data(using: .utf8)!
-        let outputURL = url.deletingPathExtension().appendingPathExtension("sorted.json")
-        try! unescapedData.write(to: outputURL)
-        print("Error: Packages.json is not sorted correctly. Run this validation locally and replace packages.json with packages.sorted.json.")
-        exit(1)
-      }
-
-      print("Checking each url for valid package dump.")
-
-      filterRepos(packageUrls, withSession: session, includingMaster: command == .all) { result in
-        let packageUrls: [URL]
-        switch result {
-        case let .failure(error):
-          debugPrint(error)
-          exit(1)
-        case let .success(urls):
-          packageUrls = urls
-        }
-        print("Checking \(packageUrls.count) Packages...")
-        parseRepos(packageUrls, withSession: session) { errors in
-          for (url, error) in errors {
-            print(url, error)
-          }
-          if errors.count == 0 {
-            print("Validation Succeeded.")
-            exit(0)
-          } else {
-            print("Validation Failed")
-            let errorReport = [String: [PackageError]].init(grouping: errors.values, by: { $0.friendlyName }).mapValues { $0.count }
-            for report in errorReport {
-              print(report.value, report.key, separator: "\t")
-            }
-            print()
-            print("\(errors.count) Packages Failed")
-            exit(1)
-          }
-        }
-      }
-    }
-    let semaphore = DispatchSemaphore(value: 0)
-    semaphore.wait()
-    exit(1)
-  }
 
   // RunLoop.main.run()
 }
