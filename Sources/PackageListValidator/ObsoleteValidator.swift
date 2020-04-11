@@ -116,7 +116,7 @@ public struct ObsoleteValidator {
     return config
   }()
 
-  //static let processSemaphore = DispatchSemaphore(value: semaphoreCount)
+  static let processSemaphore = DispatchSemaphore(value: semaphoreCount)
 
   // MARK: Functions
 
@@ -215,7 +215,7 @@ public struct ObsoleteValidator {
     let processPromise = Promise<RepoDetail> { resolver in
       process.terminationHandler = {
         _ in
-
+        
         guard process.terminationStatus == 0 else {
           let error: PackageError
           if process.terminationStatus == 15 {
@@ -253,16 +253,19 @@ public struct ObsoleteValidator {
 //        callback(nil)
       }
       //processSemaphore.wait()
-
+      processSemaphore.wait()
+      debugPrint(directoryURL.lastPathComponent)
       process.launch()
     }
-    return processPromise.timeout(after: processTimeout, withError: PackageError.dumpTimeout).ensure {
-      if process.isRunning {
-        debugPrint("Killing Process.")
-        process.terminate()
-      }
-      //processSemaphore.signal()
-      //debugPrint("Verifying Dump Completed")
+    
+    let timeout = after(seconds: processTimeout).done {
+      processSemaphore.signal()
+      throw PackageError.dumpTimeout
+    }
+
+    
+    return race(processPromise.asVoid(), timeout).map{
+      return processPromise.value!
     }
   }
 
@@ -346,8 +349,9 @@ public struct ObsoleteValidator {
       verifyPackage(at: $0, withSession: session, usingDecoder: decoder)
     }
     
+    
 
-    return Promise<Any>.chainSerially(promises)
+    return when(fulfilled: promises)
     //return when(fulfilled: promises)
   }
 
