@@ -125,38 +125,54 @@ public struct ObsoleteValidator {
    - Parameter gitURL: Repository URL
    - Returns: raw git URL, if successful; other `invalidURL` if not proper git repo url or `unsupportedHost` if the host is not currently supported.
    */
-  static func getPackageSwiftURL(for gitURL: URL) -> Result<URL, PackageError> {
-    guard let hostString = gitURL.host else {
-      return .failure(.invalidURL(gitURL))
-    }
-
-    guard let host = GitHost(rawValue: hostString) else {
-      return .failure(.unsupportedHost(hostString))
-    }
-
-    switch host {
-    case .github:
-      var rawURLComponents = ObsoleteValidator.rawURLComponentsBase
-      let repositoryName = gitURL.deletingPathExtension().lastPathComponent
-      let userName = gitURL.deletingLastPathComponent().lastPathComponent
-      let branchName = "master"
-      rawURLComponents.path = ["", userName, repositoryName, branchName, "Package.swift"].joined(separator: "/")
-      guard let packageSwiftURL = rawURLComponents.url else {
-        return .failure(.invalidURL(gitURL))
+  static func getPackageSwiftURL(for gitURL: URL) -> Promise<URL> {
+    return Promise{
+      (resolver) in
+      guard let hostString = gitURL.host else {
+        
+        return resolver.reject(PackageError.invalidURL(gitURL))
       }
-      return .success(packageSwiftURL)
+
+      guard let host = GitHost(rawValue: hostString) else {
+        //return .failure(PackageError.unsupportedHost(hostString))
+        return resolver.reject(PackageError.unsupportedHost(hostString))
+      }
+
+      switch host {
+      case .github:
+        var rawURLComponents = ObsoleteValidator.rawURLComponentsBase
+        let repositoryName = gitURL.deletingPathExtension().lastPathComponent
+        let userName = gitURL.deletingLastPathComponent().lastPathComponent
+        let branchName = "master"
+        rawURLComponents.path = ["", userName, repositoryName, branchName, "Package.swift"].joined(separator: "/")
+        guard let packageSwiftURL = rawURLComponents.url else {
+          
+          return resolver.reject(PackageError.invalidURL(gitURL))
+        }
+        //return .success(packageSwiftURL)
+        resolver.fulfill(packageSwiftURL)
+      }
     }
   }
 
   static func download(_ packageSwiftURL: URL, withSession session: URLSession) -> Promise<URL> {
-    Promise<Data> { resolver in
-      session.dataTask(with: packageSwiftURL) {
+    getPackageSwiftURL(for: packageSwiftURL).then
+    { url in
+      Promise<Data>{ resolver in
+        //debugPrint("Downloading \(url)...")
+      session.dataTask(with: url) {
         resolver.resolve($2, $0)
+        //debugPrint("Downloaded \(url)...")
       }.resume()
+      }
     }.then { data in
       Promise { resolver in
         let result = Result { try directoryForData(data) }
         resolver.resolve(result)
+      }
+    }.then { (url)  in
+      return after(seconds: 10.0).map {
+        url
       }
     }
   }
@@ -242,6 +258,7 @@ public struct ObsoleteValidator {
     }
     return processPromise.timeout(after: processTimeout, withError: PackageError.dumpTimeout).ensure {
       if process.isRunning {
+        debugPrint("Killing Process.")
         process.terminate()
       }
       //processSemaphore.signal()
