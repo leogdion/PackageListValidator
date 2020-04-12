@@ -1,6 +1,8 @@
 import ArgumentParser
 import Foundation
 import PromiseKit
+import PackageDescription
+
 
 struct NotImplementError: Error {}
 
