@@ -13,11 +13,12 @@ public struct All: ParsableCommand {
   public init() {}
 
   public func run() throws {
-    let decoder = JSONDecoder()
     let session: URLSession = URLSession(configuration: Configuration.default.config)
+    let decoder = JSONDecoder()
+    let packageListJsonURLParser: PackageListJsonURLParserProtocol = PackageListJsonURLParser()
+    let listValidators: [ListValidator] = [GitUrlListValidator(), SortedListValidator(), UniqueListValidator()]
 
     let currentDirectoryURL: URL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
-    let packageListJsonURLParser: PackageListJsonURLParserProtocol = PackageListJsonURLParser()
     // Find the "packages.json" file based on arguments, current directory, or the directory of the script
     let packagesJsonURL = packageListJsonURLParser.url(
       packagesFromDirectories: [
@@ -39,16 +40,12 @@ public struct All: ParsableCommand {
     } catch {
       Self.exit(withError: error)
     }
-    let listValidators: [ListValidator] = [GitUrlListValidator(), SortedListValidator(), UniqueListValidator()]
-    let listValidatorKeys = listValidators.map {
-      $0.makeKey()
+
+    let errors = listValidators.compactMap {
+      $0.validateUrls(packageUrls)
     }
 
-    let results = listValidatorKeys.compactMap {
-      $0.validator.validateUrls(packageUrls)
-    }
-
-    if let error = ListValidationError(errors: results) {
+    if let error = ListValidationError(errors: errors) {
       Self.exit(withError: error)
     }
 
@@ -60,7 +57,13 @@ public struct All: ParsableCommand {
     }.then { urls in
       reporter.parseRepos(urls, withSession: session, usingDecoder: decoder)
     }.done { reports in
-      Self.exit(withError: ReportError(reports))
+      let error = ReportError(reports)
+
+      if error == nil {
+        print("Validation Successful.")
+      }
+
+      Self.exit(withError: error)
     }
 
     RunLoop.main.run()

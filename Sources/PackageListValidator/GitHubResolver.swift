@@ -8,7 +8,9 @@ struct GitHubResolver: GitHostResolver {
       let repositoryName = gitURL.deletingPathExtension().lastPathComponent
       let userName = gitURL.deletingLastPathComponent().lastPathComponent
       let branchName = "master"
-      resolver.fulfill(rawUrlBuilder.url(basedOn: RepoSpecification(repositoryName: repositoryName, userName: userName, branchName: branchName)))
+      let repoSpecs = RepoSpecification(repositoryName: repositoryName, userName: userName, branchName: branchName)
+      let url = rawUrlBuilder.url(basedOn: repoSpecs, forFileName: "Package.swift")
+      resolver.fulfill(url)
     }
   }
 }

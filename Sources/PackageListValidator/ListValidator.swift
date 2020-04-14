@@ -15,18 +15,12 @@ struct ValidationError: LocalizedError {
 }
 
 public protocol ListValidator {
-  static var key: String { get }
-
   static var errorDescription: String { get }
 
   func invalidUrls(fromUrls urls: [URL]) -> [URL]
 }
 
 extension ListValidator {
-  func makeKey() -> ListValidatorKey {
-    ListValidatorKey(id: Self.key, validator: self)
-  }
-
   func validateUrls(_ urls: [URL]) -> ValidationError? {
     ValidationError(description: Self.errorDescription, urls: invalidUrls(fromUrls: urls))
   }
