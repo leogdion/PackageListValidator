@@ -4,11 +4,11 @@ import PromiseKit
 
 struct NotImplementError: Error {}
 
-struct ReportError : Error {
-  let errors : [ URL : PackageError ]
-  
-  init?(_ reports : [RepoUrlReport]) {
-    let errors = reports.compactMap { (report) -> (URL, PackageError)?  in
+struct ReportError: Error {
+  let errors: [URL: PackageError]
+
+  init?(_ reports: [SwiftPackageReport]) {
+    let errors = reports.compactMap { (report) -> (URL, PackageError)? in
       if case let .failure(error) = report.result {
         return (report.url, error)
       }
@@ -20,6 +20,7 @@ struct ReportError : Error {
     self.errors = Dictionary(uniqueKeysWithValues: errors)
   }
 }
+
 public protocol PackageListJsonURLParserProtocol {
   /**
    Based on the directories passed and command line arguments, find the `packages.json` url.
@@ -221,8 +222,8 @@ public struct All: ParsableCommand {
     let filter = PackageFilter(type: .none)
     firstly {
       try filter.filterRepos(packageUrls, withSession: session, usingDecoder: decoder)
-      //try filter.urls(packageUrls, withSession: session, usingDecoder: decoder)
-      
+      // try filter.urls(packageUrls, withSession: session, usingDecoder: decoder)
+
     }.then { urls in
       ObsoleteValidator.parseRepos(urls, withSession: session, usingDecoder: decoder)
     }.done { reports in

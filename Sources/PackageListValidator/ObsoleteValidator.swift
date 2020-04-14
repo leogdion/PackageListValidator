@@ -1,17 +1,14 @@
 import Foundation
 import PromiseKit
 
-
 extension Promise {
-
   /// Returns a single Promise that you can chain to. Wraps the chains of promises passed into the array into a serial promise to execute one after another using `promise1.then { promise2 }.then ...`
   ///
   /// - Parameter promisesToExecuteSerially: promises to stitch together with `.then` and execute serially
   /// - Returns: returns an array of results from all promises
-  public static func chainSerially<T>(_ promisesToExecuteSerially:[Promise<T>]) -> Promise<[T]> {
+  public static func chainSerially<T>(_ promisesToExecuteSerially: [Promise<T>]) -> Promise<[T]> {
     // Create an array of closures that return `Promise<T>`
-    var promises = promisesToExecuteSerially.map { p -> () -> Promise<T> in
-      return { p }
+    var promises = promisesToExecuteSerially.map { p -> () -> Promise<T> in { p }
     }
 
     // Return a single promise that is fullfilled when
@@ -23,8 +20,8 @@ extension Promise {
         seal.fulfill(outResults)
       } else {
         let initial = promises.removeFirst()
-        let finalPromise:Promise<T> = promises.reduce(initial()) { (result: Promise<T>, next: @escaping ()->Promise<T>) in
-          return result.then { result -> Promise<T> in
+        let finalPromise: Promise<T> = promises.reduce(initial()) { (result: Promise<T>, next: @escaping () -> Promise<T>) in
+          result.then { result -> Promise<T> in
             outResults.append(result)
 
             return next()
@@ -53,24 +50,6 @@ extension Promise {
       self.value!
     }
   }
-}
-
-struct RepoDetail {
-  let firstProduct: Product
-  let package: Package
-
-  init(package: Package) throws {
-    guard let firstProduct = package.products.first else {
-      throw PackageError.missingProducts
-    }
-    self.firstProduct = firstProduct
-    self.package = package
-  }
-}
-
-struct RepoUrlReport {
-  let url: URL
-  let result: Result<RepoDetail, PackageError>
 }
 
 @available(*, deprecated)
@@ -129,7 +108,7 @@ public struct ObsoleteValidator {
 //    return Promise{
 //      (resolver) in
 //      guard let hostString = gitURL.host else {
-//        
+//
 //        return resolver.reject(PackageError.invalidURL(gitURL))
 //      }
 //
@@ -146,7 +125,7 @@ public struct ObsoleteValidator {
 //        let branchName = "master"
 //        rawURLComponents.path = ["", userName, repositoryName, branchName, "Package.swift"].joined(separator: "/")
 //        guard let packageSwiftURL = rawURLComponents.url else {
-//          
+//
 //          return resolver.reject(PackageError.invalidURL(gitURL))
 //        }
 //        //return .success(packageSwiftURL)
@@ -265,34 +244,34 @@ public struct ObsoleteValidator {
 //    return processPromise
 //
 //
-////  debugPrint(directoryURL.lastPathComponent)
-////    let timeout =
-////    after(seconds: processTimeout)
-////
-////    return  timeout.then({
-////      return Promise<RepoUrlReport>.init(error: PackageError.dumpTimeout)
-////      })
+  ////  debugPrint(directoryURL.lastPathComponent)
+  ////    let timeout =
+  ////    after(seconds: processTimeout)
+  ////
+  ////    return  timeout.then({
+  ////      return Promise<RepoUrlReport>.init(error: PackageError.dumpTimeout)
+  ////      })
 //
 //
 //  }
 
-  static func verifyPackage(at gitURL: URL, withSession session: URLSession, usingDecoder decoder: JSONDecoder) -> Promise<RepoUrlReport> {
-    let downloader = PackageDownloader()
-    let parser = ProcessPackageParser()
-    return firstly {
-      downloader.download(gitURL, withSession: session)
-    }.then { downloadURL in
-      parser.verifyPackageDump(at: downloadURL, withDecoder: decoder)
-    }.map { detail in
-      debugPrint("Verified \(gitURL)")
-      return RepoUrlReport(url: gitURL, result: .success(detail))
-    }.recover(only: PackageError.self) { error -> Guarantee<RepoUrlReport> in
-      debugPrint("Failed \(gitURL): \(error.friendlyName)")
-      return Guarantee {
-        $0(RepoUrlReport(url: gitURL, result: .failure(error)))
-      }
-    }
-  }
+//  static func verifyPackage(at gitURL: URL, withSession session: URLSession, usingDecoder decoder: JSONDecoder) -> Promise<SwiftPackageReport> {
+//    let downloader = PackageDownloader()
+//    let parser = ProcessPackageParser()
+//    return firstly {
+//      downloader.download(gitURL, withSession: session)
+//    }.then { downloadURL in
+//      parser.verifyPackageDump(at: downloadURL, withDecoder: decoder)
+//    }.map { detail in
+//      debugPrint("Verified \(gitURL)")
+//      return SwiftPackageReport(url: gitURL, result: .success(detail))
+//    }.recover(only: PackageError.self) { error -> Guarantee<SwiftPackageReport> in
+//      debugPrint("Failed \(gitURL): \(error.friendlyName)")
+//      return Guarantee {
+//        $0(SwiftPackageReport(url: gitURL, result: .failure(error)))
+//      }
+//    }
+//  }
 
   static func fetchMasterList(withSession session: URLSession, andDecoder decoder: JSONDecoder) -> Promise<[URL]> {
     Promise {
@@ -307,6 +286,7 @@ public struct ObsoleteValidator {
       }
     }
   }
+
 //
 //  static func filterRepos(_ packageUrls: [URL], withSession session: URLSession, usingDecoder decoder: JSONDecoder, includingMaster: Bool) -> Promise<[URL]> {
 //    Promise { resolver in
@@ -321,33 +301,32 @@ public struct ObsoleteValidator {
 //    }
 //  }
 
-  /**
-   Filters repositories based what is not listen in the master list.
-   - Parameter packageUrls: current package urls
-   - Parameter includingMaster: to not filter all repository url and just verify all package URLs
-   */
-  static func filterRepos(_: [URL], withSession _: URLSession, includingMaster _: Bool, _: @escaping ((Result<[URL], Error>) -> Void)) {}
+//  /**
+//   Filters repositories based what is not listen in the master list.
+//   - Parameter packageUrls: current package urls
+//   - Parameter includingMaster: to not filter all repository url and just verify all package URLs
+//   */
+//  static func filterRepos(_: [URL], withSession _: URLSession, includingMaster _: Bool, _: @escaping ((Result<[URL], Error>) -> Void)) {}
 
-  static func parseRepos(_ packageUrls: [URL], withSession session: URLSession, usingDecoder decoder: JSONDecoder) -> Promise<[RepoUrlReport]> {
+  static func parseRepos(_ packageUrls: [URL], withSession session: URLSession, usingDecoder decoder: JSONDecoder) -> Promise<[SwiftPackageReport]> {
+    let reporter = SwiftPackageReporter()
     let promises = packageUrls.map {
-      verifyPackage(at: $0, withSession: session, usingDecoder: decoder)
+      reporter.verifyPackage(at: $0, withSession: session, usingDecoder: decoder)
     }
-    
-    
 
     return when(fulfilled: promises)
-    //return when(fulfilled: promises)
+    // return when(fulfilled: promises)
   }
 
-  /**
-   Based on the directories passed and command line arguments, find the `packages.json` url.
-   - Parameter directoryURLs: directory url to search for `packages.json` file
-   - Parameter arguments: Command Line arguments which may contain a path to a `packages.json` file.
-   */
-  static func url(packagesFromDirectories directoryURLs: [URL], andArguments arguments: [String]) -> URL? {
-    let possiblePackageURLs = arguments.dropFirst().compactMap { URL(fileURLWithPath: $0) } + directoryURLs.map { $0.appendingPathComponent("packages.json") }
-    return possiblePackageURLs.first(where: { FileManager.default.fileExists(atPath: $0.path) })
-  }
+//  /**
+//   Based on the directories passed and command line arguments, find the `packages.json` url.
+//   - Parameter directoryURLs: directory url to search for `packages.json` file
+//   - Parameter arguments: Command Line arguments which may contain a path to a `packages.json` file.
+//   */
+//  static func url(packagesFromDirectories directoryURLs: [URL], andArguments arguments: [String]) -> URL? {
+//    let possiblePackageURLs = arguments.dropFirst().compactMap { URL(fileURLWithPath: $0) } + directoryURLs.map { $0.appendingPathComponent("packages.json") }
+//    return possiblePackageURLs.first(where: { FileManager.default.fileExists(atPath: $0.path) })
+//  }
 
   // MARK: Running Code
 
