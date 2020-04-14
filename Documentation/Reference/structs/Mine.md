@@ -12,3 +12,9 @@ public struct Mine: ParsableCommand
 ```swift
 public init()
 ```
+
+### `run()`
+
+```swift
+public func run() throws
+```
