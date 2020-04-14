@@ -27,7 +27,6 @@ struct Status {
       _ = reports.dropFirst()
     }
 
-    
     print("\u{1B}7\(errorCount)/\(successCount)/\(totalCount)\u{1B}8")
   }
 }
