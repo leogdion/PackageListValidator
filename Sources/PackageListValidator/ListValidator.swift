@@ -28,6 +28,6 @@ extension ListValidator {
   }
 
   func validateUrls(_ urls: [URL]) -> ValidationError? {
-    ValidationError(description: Self.errorDescription, urls: urls)
+    ValidationError(description: Self.errorDescription, urls: self.invalidUrls(fromUrls: urls))
   }
 }
