@@ -20,7 +20,16 @@ struct GitHubDefaultBranchQuery: DefaultBranchQuery {
   let session: URLSession
   func defaultBranchName(forRepoName repo: String, withOwner owner: String, _ completed: @escaping ((Result<String, Error>) -> Void)) {
     let url = apiBaseURL.appendingPathComponent(owner).appendingPathComponent(repo)
-    session.dataTask(with: url) { data, _, error in
+    var urlRequest = URLRequest(url: url)
+    if let token = ProcessInfo.processInfo.environment["GITHUB_API_TOKEN"], let username = ProcessInfo.processInfo.environment["GITHUB_API_USERNAME"] {
+      let userPasswordString = "\(username):\(token)"
+      if let userPasswordData = userPasswordString.data(using: .utf8) {
+      let base64EncodedCredential = userPasswordData.base64EncodedString()
+      let authString = "Basic \(base64EncodedCredential)"
+      urlRequest.addValue(authString, forHTTPHeaderField: "Authorization")
+      }
+    }
+    session.dataTask(with: urlRequest) { data, _, error in
       if let error = error {
         completed(.failure(error))
         return
@@ -30,7 +39,6 @@ struct GitHubDefaultBranchQuery: DefaultBranchQuery {
         completed(.failure(InvalidCallingConvention))
         return
       }
-
       let result = Result { try self.decoder.decode(GitHubRepo.self, from: data) }
       completed(result.map { $0.defaultBranch })
     }.resume()

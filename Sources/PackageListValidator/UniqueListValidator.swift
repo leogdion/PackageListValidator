@@ -6,7 +6,8 @@ import Foundation
 #endif
 
 public struct UniqueListValidator: ListValidator {
-  public static let errorDescription = "Duplicate URLs"
+  public static let errorDescription = "Duplicate Urls."
+  public static let successDescription = "No Duplicate Urls."
 
   public func invalidUrls(fromUrls urls: [URL]) -> [URL] {
     [URL](Dictionary(grouping: urls.enumerated()) {

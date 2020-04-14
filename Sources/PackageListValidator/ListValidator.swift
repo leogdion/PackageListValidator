@@ -16,6 +16,7 @@ struct ValidationError: LocalizedError {
 
 public protocol ListValidator {
   static var errorDescription: String { get }
+  static var successDescription: String { get }
 
   func invalidUrls(fromUrls urls: [URL]) -> [URL]
 }

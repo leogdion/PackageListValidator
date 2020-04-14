@@ -1,7 +1,8 @@
 import Foundation
 
 public struct SortedListValidator: ListValidator {
-  public static let errorDescription = "Unsorted URLs"
+  public static let errorDescription = "Urls not sorted."
+  public static let successDescription = "All urls are sorted."
 
   public func invalidUrls(fromUrls urls: [URL]) -> [URL] {
     let sortedUrls = urls.sorted {

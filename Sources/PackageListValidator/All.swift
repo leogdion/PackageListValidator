@@ -49,7 +49,9 @@ public struct All: ParsableCommand {
       Self.exit(withError: error)
     }
 
-    print("Checking each url for valid package dump.")
+    print(listValidators.map({ type(of: $0).successDescription.padding(toLength: 25, withPad: " ", startingAt: 0) + "\u{001B}[32m✓\u{001B}[0m"}).joined(separator: "\n"))
+    
+    print("Checking each url for valid package dump\u{001B}[5m...\u{001B}[0m")
     let filter = PackageFilter(type: .none)
     let reporter = SwiftPackageReporter()
     _ = firstly {
@@ -57,6 +59,7 @@ public struct All: ParsableCommand {
     }.then { urls in
       reporter.parseRepos(urls, withSession: session, usingDecoder: decoder)
     }.done { reports in
+      
       let error = ReportError(reports)
 
       if error == nil {
