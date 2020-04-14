@@ -25,7 +25,6 @@ public struct ProcessPackageParser: PackageParser {
           } else {
             error = .badDump(String(data: errorPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8))
           }
-          debugPrint(error)
           resolver.reject(error)
           self.processSemaphore.signal()
           return
