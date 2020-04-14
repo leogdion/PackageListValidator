@@ -42,6 +42,7 @@
 
 ## Extensions
 
+-   [FileHandle](extensions/FileHandle.md)
 -   [PackageFilterProtocol](extensions/PackageFilterProtocol.md)
 -   [SwiftPackageReporter](extensions/SwiftPackageReporter.md)
 
