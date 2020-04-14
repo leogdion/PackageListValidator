@@ -20,7 +20,6 @@
 -   [GitUrlListValidator](structs/GitUrlListValidator.md)
 -   [ListFetcher](structs/ListFetcher.md)
 -   [ListValidationError](structs/ListValidationError.md)
--   [ListValidatorKey](structs/ListValidatorKey.md)
 -   [Mine](structs/Mine.md)
 -   [PackageDumpProcessFactory](structs/PackageDumpProcessFactory.md)
 -   [PackageFilter](structs/PackageFilter.md)
