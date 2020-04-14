@@ -220,12 +220,14 @@ public struct All: ParsableCommand {
     let semaphore = DispatchSemaphore(value: 0)
     print("Checking each url for valid package dump.")
     let filter = PackageFilter(type: .none)
+    let reporter = SwiftPackageReporter()
     firstly {
+      
       try filter.filterRepos(packageUrls, withSession: session, usingDecoder: decoder)
       // try filter.urls(packageUrls, withSession: session, usingDecoder: decoder)
 
     }.then { urls in
-      ObsoleteValidator.parseRepos(urls, withSession: session, usingDecoder: decoder)
+      try reporter.parseRepos(urls, withSession: session, usingDecoder: decoder)
     }.done { reports in
       Self.exit(withError: ReportError(reports))
     }

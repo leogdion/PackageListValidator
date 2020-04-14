@@ -40,9 +40,7 @@ extension Promise {
       }
     }
   }
-}
-
-extension Promise {
+  
   func timeout(after seconds: TimeInterval, withError error: Error) -> Promise<T> {
     race(asVoid(), after(seconds: seconds).done {
       throw error
@@ -272,20 +270,20 @@ public struct ObsoleteValidator {
 //      }
 //    }
 //  }
-
-  static func fetchMasterList(withSession session: URLSession, andDecoder decoder: JSONDecoder) -> Promise<[URL]> {
-    Promise {
-      resolver in
-      session.dataTask(with: ObsoleteValidator.masterPackageList) {
-        resolver.resolve($0, $2)
-      }.resume()
-    }.then {
-      data in
-      Promise {
-        $0.resolve(Result { try decoder.decode([URL].self, from: data) })
-      }
-    }
-  }
+//
+//  static func fetchMasterList(withSession session: URLSession, andDecoder decoder: JSONDecoder) -> Promise<[URL]> {
+//    Promise {
+//      resolver in
+//      session.dataTask(with: ObsoleteValidator.masterPackageList) {
+//        resolver.resolve($0, $2)
+//      }.resume()
+//    }.then {
+//      data in
+//      Promise {
+//        $0.resolve(Result { try decoder.decode([URL].self, from: data) })
+//      }
+//    }
+//  }
 
 //
 //  static func filterRepos(_ packageUrls: [URL], withSession session: URLSession, usingDecoder decoder: JSONDecoder, includingMaster: Bool) -> Promise<[URL]> {
@@ -308,15 +306,15 @@ public struct ObsoleteValidator {
 //   */
 //  static func filterRepos(_: [URL], withSession _: URLSession, includingMaster _: Bool, _: @escaping ((Result<[URL], Error>) -> Void)) {}
 
-  static func parseRepos(_ packageUrls: [URL], withSession session: URLSession, usingDecoder decoder: JSONDecoder) -> Promise<[SwiftPackageReport]> {
-    let reporter = SwiftPackageReporter()
-    let promises = packageUrls.map {
-      reporter.verifyPackage(at: $0, withSession: session, usingDecoder: decoder)
-    }
-
-    return when(fulfilled: promises)
-    // return when(fulfilled: promises)
-  }
+//  static func parseRepos(_ packageUrls: [URL], withSession session: URLSession, usingDecoder decoder: JSONDecoder) -> Promise<[SwiftPackageReport]> {
+//    let reporter = SwiftPackageReporter()
+//    let promises = packageUrls.map {
+//      reporter.verifyPackage(at: $0, withSession: session, usingDecoder: decoder)
+//    }
+//
+//    return when(fulfilled: promises)
+//    // return when(fulfilled: promises)
+//  }
 
 //  /**
 //   Based on the directories passed and command line arguments, find the `packages.json` url.

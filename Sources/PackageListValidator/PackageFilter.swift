@@ -1,13 +1,29 @@
 import Foundation
 import PromiseKit
 
-public protocol ListFetcher {
+public protocol ListFetcherProtocol {
   func listWithSession(_ session: URLSession, usingDecoder decoder: JSONDecoder, _ completed: @escaping (Result<[URL], Error>) -> Void)
+}
+
+public struct ListFetcher : ListFetcherProtocol {
+  let listURL : URL
+  public func listWithSession(_ session: URLSession, usingDecoder decoder: JSONDecoder, _ completed: @escaping (Result<[URL], Error>) -> Void) {
+    
+    session.dataTask(with: listURL) { (data, _, error) in
+      if let error = error {
+        completed(.failure(error))
+      } else if let data = data {
+        completed(Result { try decoder.decode([URL].self, from: data) })
+      } else {
+        completed(.failure(PMKError.invalidCallingConvention))
+      }
+    }
+  }
 }
 
 public enum PackageFilterType {
   case none
-  case diffWith(ListFetcher)
+  case diffWith(ListFetcherProtocol)
 }
 
 public protocol PackageFilterProtocol {
