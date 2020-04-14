@@ -1,6 +1,10 @@
 import Foundation
 import PromiseKit
 
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
+
 public struct TemporaryPackageDownloader: PackageDownloader {
   let urlFetcher: PackageUrlFetcherProtocol = PackageUrlFetcher()
   let tempDataStorage: TemporaryDataStorage = TemporaryDirDataStorage()

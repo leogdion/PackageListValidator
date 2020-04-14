@@ -3,7 +3,11 @@ import Foundation
 public struct PackageDumpProcessFactory: PackageDumpProcessFactoryProtocol {
   public func dumpPackageProcessAt(_ packageDirectoryURL: URL, outputTo pipe: Pipe, errorsTo errorPipe: Pipe) -> Process {
     let process = Process()
-    process.launchPath = "/usr/bin/swift"
+    if #available(OSX 10.13, *) {
+      process.executableURL = URL(fileURLWithPath: "/usr/bin/swift")
+    } else {
+      process.launchPath = "/usr/bin/swift"
+    }
     process.arguments = ["package", "dump-package"]
     if #available(OSX 10.13, *) {
       process.currentDirectoryURL = packageDirectoryURL

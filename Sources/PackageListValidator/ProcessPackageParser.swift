@@ -55,7 +55,17 @@ public struct ProcessPackageParser: PackageParser {
     }
 
     processSemaphore.wait()
-    process.launch()
+    if #available(OSX 10.13, *) {
+      do {
+        try process.run()
+      } catch {
+        self.processSemaphore.signal()
+        return Promise<SwiftPackageDetails>(error: error)
+      }
+    } else {
+      // Fallback on earlier versions
+      process.launch()
+    }
 
     DispatchQueue.main.asyncAfter(deadline: .now() + processTimeout) {
       process.terminate()

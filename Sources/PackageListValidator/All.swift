@@ -2,6 +2,10 @@ import ArgumentParser
 import Foundation
 import PromiseKit
 
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
+
 public struct All: ParsableCommand {
   @Argument(default: "packages.json")
   var path: String?

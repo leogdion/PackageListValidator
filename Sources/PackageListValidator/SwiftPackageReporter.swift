@@ -1,6 +1,10 @@
 import Foundation
 import PromiseKit
 
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
+
 public struct SwiftPackageReporter {
   let downloader: PackageDownloader = TemporaryPackageDownloader()
   let parser: PackageParser = ProcessPackageParser()
