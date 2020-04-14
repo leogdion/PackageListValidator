@@ -22,7 +22,7 @@ public struct SwiftPackageReporter {
 }
 
 public extension SwiftPackageReporter {
-  public func parseRepos(_ packageUrls: [URL], withSession session: URLSession, usingDecoder decoder: JSONDecoder) -> Promise<[SwiftPackageReport]> {
+  func parseRepos(_ packageUrls: [URL], withSession session: URLSession, usingDecoder decoder: JSONDecoder) -> Promise<[SwiftPackageReport]> {
     let promises = packageUrls.map {
       self.verifyPackage(at: $0, withSession: session, usingDecoder: decoder)
     }

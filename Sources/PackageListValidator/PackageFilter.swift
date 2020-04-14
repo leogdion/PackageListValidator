@@ -5,11 +5,10 @@ public protocol ListFetcherProtocol {
   func listWithSession(_ session: URLSession, usingDecoder decoder: JSONDecoder, _ completed: @escaping (Result<[URL], Error>) -> Void)
 }
 
-public struct ListFetcher : ListFetcherProtocol {
-  let listURL : URL
+public struct ListFetcher: ListFetcherProtocol {
+  let listURL: URL
   public func listWithSession(_ session: URLSession, usingDecoder decoder: JSONDecoder, _ completed: @escaping (Result<[URL], Error>) -> Void) {
-    
-    session.dataTask(with: listURL) { (data, _, error) in
+    session.dataTask(with: listURL) { data, _, error in
       if let error = error {
         completed(.failure(error))
       } else if let data = data {
@@ -27,7 +26,12 @@ public enum PackageFilterType {
 }
 
 public protocol PackageFilterProtocol {
-  func filterRepos(_ packageUrls: [URL], withSession session: URLSession, usingDecoder decoder: JSONDecoder, _ completed: @escaping (Result<[URL], Error>) -> Void)
+  func filterRepos(
+    _ packageUrls: [URL],
+    withSession session: URLSession,
+    usingDecoder decoder: JSONDecoder,
+    _ completed: @escaping (Result<[URL], Error>) -> Void
+  )
 }
 
 public extension PackageFilterProtocol {
@@ -43,7 +47,12 @@ public extension PackageFilterProtocol {
 public struct PackageFilter: PackageFilterProtocol {
   public let type: PackageFilterType
 
-  public func filterRepos(_ packageUrls: [URL], withSession session: URLSession, usingDecoder decoder: JSONDecoder, _ completed: @escaping (Result<[URL], Error>) -> Void) {
+  public func filterRepos(
+    _ packageUrls: [URL],
+    withSession session: URLSession,
+    usingDecoder decoder: JSONDecoder,
+    _ completed: @escaping (Result<[URL], Error>) -> Void
+  ) {
     guard case let .diffWith(fetcher) = type else {
       completed(.success(packageUrls))
       return
