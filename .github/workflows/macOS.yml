@@ -12,6 +12,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        submodules: true
     - name: Xcode 11.4
       run: sudo xcode-select -s /Applications/Xcode_11.4.app/Contents/Developer
     - name: Prepare Build
@@ -38,9 +40,5 @@ jobs:
         git add Documentation
         git diff-index --quiet HEAD || git commit -m "[github action] Update Docs"
         git push
-    - name: Checkout submodules
-      uses: srt32/git-actions@v0.0.3
-      with:
-        args: git submodule update --init --recursive
     - name : Test Validation
       run : swift run swiftpmls all SwiftPMLibrary/packages.json
