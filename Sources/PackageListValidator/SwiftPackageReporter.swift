@@ -8,8 +8,9 @@ import PromiseKit
 public struct SwiftPackageReporter {
   let downloader: PackageDownloader = TemporaryPackageDownloader()
   let parser: PackageParser = ProcessPackageParser()
+  let logger: ((SwiftPackageReport) -> Void)?
   func verifyPackage(at gitURL: URL, withSession session: URLSession, usingDecoder decoder: JSONDecoder) -> Promise<SwiftPackageReport> {
-    firstly {
+    var promise = firstly {
       self.downloader.download(gitURL, withSession: session)
     }.then { downloadURL in
       self.parser.verifyPackageDump(at: downloadURL, withDecoder: decoder)
@@ -22,6 +23,15 @@ public struct SwiftPackageReporter {
         $0(SwiftPackageReport(url: gitURL, result: .failure(error)))
       }
     }
+
+    if let logger = self.logger {
+      promise = promise.then { report -> Promise<Promise<SwiftPackageReport>.T> in
+        logger(report)
+        return Promise.value(report)
+      }
+    }
+
+    return promise
   }
 }
 
