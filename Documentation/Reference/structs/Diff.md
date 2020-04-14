@@ -12,3 +12,9 @@ public struct Diff: ParsableCommand
 ```swift
 public init()
 ```
+
+### `run()`
+
+```swift
+public func run() throws
+```

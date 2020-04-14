@@ -7,8 +7,8 @@ public struct GitHubRawUrlBuilder: RawUrlBuilder
 ```
 
 ## Methods
-### `url(basedOn:)`
+### `url(basedOn:forFileName:)`
 
 ```swift
-public func url(basedOn specifications: RepoSpecification) -> URL
+public func url(basedOn specifications: RepoSpecification, forFileName fileName: String) -> URL
 ```
