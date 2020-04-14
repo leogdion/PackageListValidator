@@ -40,5 +40,5 @@ jobs:
         git add Documentation
         git diff-index --quiet HEAD || git commit -m "[github action] Update Docs"
         git push
-    - name : Test Validation
-      run : swift run swiftpmls all SwiftPMLibrary/packages.json
+#    - name : Test Validation
+#      run : swift run swiftpmls all SwiftPMLibrary/packages.json

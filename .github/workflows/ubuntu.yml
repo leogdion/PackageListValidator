@@ -32,5 +32,5 @@ jobs:
       uses: srt32/git-actions@v0.0.3
       with:
         args: git submodule update --init --recursive
-    - name : Test Validation
-      run : swift run swiftpmls all SwiftPMLibrary/packages.json
+#    - name : Test Validation
+#      run : swift run swiftpmls all SwiftPMLibrary/packages.json
