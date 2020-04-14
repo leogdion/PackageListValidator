@@ -125,161 +125,164 @@ public struct ObsoleteValidator {
    - Parameter gitURL: Repository URL
    - Returns: raw git URL, if successful; other `invalidURL` if not proper git repo url or `unsupportedHost` if the host is not currently supported.
    */
-  static func getPackageSwiftURL(for gitURL: URL) -> Promise<URL> {
-    return Promise{
-      (resolver) in
-      guard let hostString = gitURL.host else {
-        
-        return resolver.reject(PackageError.invalidURL(gitURL))
-      }
-
-      guard let host = GitHost(rawValue: hostString) else {
-        //return .failure(PackageError.unsupportedHost(hostString))
-        return resolver.reject(PackageError.unsupportedHost(hostString))
-      }
-
-      switch host {
-      case .github:
-        var rawURLComponents = ObsoleteValidator.rawURLComponentsBase
-        let repositoryName = gitURL.deletingPathExtension().lastPathComponent
-        let userName = gitURL.deletingLastPathComponent().lastPathComponent
-        let branchName = "master"
-        rawURLComponents.path = ["", userName, repositoryName, branchName, "Package.swift"].joined(separator: "/")
-        guard let packageSwiftURL = rawURLComponents.url else {
-          
-          return resolver.reject(PackageError.invalidURL(gitURL))
-        }
-        //return .success(packageSwiftURL)
-        resolver.fulfill(packageSwiftURL)
-      }
-    }
-  }
-
-  static func download(_ packageSwiftURL: URL, withSession session: URLSession) -> Promise<URL> {
-    getPackageSwiftURL(for: packageSwiftURL).then
-    { url in
-      Promise<Data>{ resolver in
-        //debugPrint("Downloading \(url)...")
-      session.dataTask(with: url) {
-        resolver.resolve($2, $0)
-        //debugPrint("Downloaded \(url)...")
-      }.resume()
-      }
-    }.then { data in
-      Promise { resolver in
-        let result = Result { try directoryForData(data) }
-        resolver.resolve(result)
-      }
-    }.then { (url)  in
-      return after(seconds: 10.0).map {
-        url
-      }
-    }
-  }
-
-  static func directoryForData(_ data: Data) throws -> URL {
-    let temporaryDirectoryURL: URL
-    temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())
-
-    let outputDirURL = temporaryDirectoryURL.appendingPathComponent(UUID().uuidString)
-
-    try FileManager.default.createDirectory(at: outputDirURL, withIntermediateDirectories: false, attributes: nil)
-    try data.write(to: outputDirURL.appendingPathComponent("Package.swift"), options: .atomic)
-    return outputDirURL
-  }
-
-  /**
-   Creates a `Process` for dump the package metadata.
-   - Parameter packageDirectoryURL: File URL to Package
-   - Parameter outputTo: standard output pipe
-   - Parameter errorsTo: error pipe
-   */
-  static func dumpPackageProcessAt(_ packageDirectoryURL: URL, outputTo pipe: Pipe, errorsTo errorPipe: Pipe) -> Process {
-    let process = Process()
-    process.launchPath = "/usr/bin/swift"
-    process.arguments = ["package", "dump-package"]
-    if #available(OSX 10.13, *) {
-      process.currentDirectoryURL = packageDirectoryURL
-    } else {
-      process.currentDirectoryPath = packageDirectoryURL.path
-    }
-    process.standardOutput = pipe
-    process.standardError = errorPipe
-    return process
-  }
-
-  static func verifyPackageDump(at directoryURL: URL, withDecoder decoder: JSONDecoder) -> Promise<RepoDetail> {
-    let pipe = Pipe()
-    let errorPipe = Pipe()
-    let process = dumpPackageProcessAt(directoryURL, outputTo: pipe, errorsTo: errorPipe)
-    let processPromise = Promise<RepoDetail> { resolver in
-      process.terminationHandler = {
-        _ in
-        
-        guard process.terminationStatus == 0 else {
-          let error: PackageError
-          if process.terminationStatus == 15 {
-            error = .dumpTimeout
-          } else {
-            error = .badDump(String(data: errorPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8))
-          }
-          debugPrint(error)
-          resolver.reject(error)
-          processSemaphore.signal()
-          return
-        }
-
-        let package: Package
-        do {
-          package = try decoder.decode(Package.self, from: pipe.fileHandleForReading.readDataToEndOfFile())
-        } catch {
-          resolver.reject(PackageError.decodingError(error))
-          processSemaphore.signal()
-          return
-        }
-
-        let repoDetail: RepoDetail
-        do {
-          repoDetail = try RepoDetail(package: package)
-        } catch {
-          resolver.reject(error)
-          processSemaphore.signal()
-          return
-        }
-
-        resolver.fulfill(repoDetail)
-        processSemaphore.signal()
-      }
-      
-      
-    }
-
-    processSemaphore.wait()
-    process.launch()
-    
-    DispatchQueue.main.asyncAfter(deadline: .now() + processTimeout){
-      process.terminate()
-    }
-    
-    return processPromise
-    
-    
-//  debugPrint(directoryURL.lastPathComponent)
-//    let timeout =
-//    after(seconds: processTimeout)
+//  static func getPackageSwiftURL(for gitURL: URL) -> Promise<URL> {
+//    return Promise{
+//      (resolver) in
+//      guard let hostString = gitURL.host else {
+//        
+//        return resolver.reject(PackageError.invalidURL(gitURL))
+//      }
 //
-//    return  timeout.then({
-//      return Promise<RepoUrlReport>.init(error: PackageError.dumpTimeout)
-//      })
+//      guard let host = GitHost(rawValue: hostString) else {
+//        //return .failure(PackageError.unsupportedHost(hostString))
+//        return resolver.reject(PackageError.unsupportedHost(hostString))
+//      }
+//
+//      switch host {
+//      case .github:
+//        var rawURLComponents = ObsoleteValidator.rawURLComponentsBase
+//        let repositoryName = gitURL.deletingPathExtension().lastPathComponent
+//        let userName = gitURL.deletingLastPathComponent().lastPathComponent
+//        let branchName = "master"
+//        rawURLComponents.path = ["", userName, repositoryName, branchName, "Package.swift"].joined(separator: "/")
+//        guard let packageSwiftURL = rawURLComponents.url else {
+//          
+//          return resolver.reject(PackageError.invalidURL(gitURL))
+//        }
+//        //return .success(packageSwiftURL)
+//        resolver.fulfill(packageSwiftURL)
+//      }
+//    }
+//  }
 
-    
-  }
+//  static func download(_ packageSwiftURL: URL, withSession session: URLSession) -> Promise<URL> {
+//    let fetcher = PackageUrlFetcher()
+//    return fetcher.getPackageSwiftURL(for: packageSwiftURL).then
+//    { url in
+//      Promise<Data>{ resolver in
+//        //debugPrint("Downloading \(url)...")
+//      session.dataTask(with: url) {
+//        resolver.resolve($2, $0)
+//        //debugPrint("Downloaded \(url)...")
+//      }.resume()
+//      }
+//    }.then { data in
+//      Promise<URL> { resolver in
+//        let result = Result { try directoryForData(data) }
+//        resolver.resolve(result)
+//      }
+//    }.then { (url)  in
+//      return after(seconds: 10.0).map {
+//        url
+//      }
+//    }
+//  }
+//
+//  static func directoryForData(_ data: Data) throws -> URL {
+//    let temporaryDirectoryURL: URL
+//    temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())
+//
+//    let outputDirURL = temporaryDirectoryURL.appendingPathComponent(UUID().uuidString)
+//
+//    try FileManager.default.createDirectory(at: outputDirURL, withIntermediateDirectories: false, attributes: nil)
+//    try data.write(to: outputDirURL.appendingPathComponent("Package.swift"), options: .atomic)
+//    return outputDirURL
+//  }
+
+//  /**
+//   Creates a `Process` for dump the package metadata.
+//   - Parameter packageDirectoryURL: File URL to Package
+//   - Parameter outputTo: standard output pipe
+//   - Parameter errorsTo: error pipe
+//   */
+//  static func dumpPackageProcessAt(_ packageDirectoryURL: URL, outputTo pipe: Pipe, errorsTo errorPipe: Pipe) -> Process {
+//    let process = Process()
+//    process.launchPath = "/usr/bin/swift"
+//    process.arguments = ["package", "dump-package"]
+//    if #available(OSX 10.13, *) {
+//      process.currentDirectoryURL = packageDirectoryURL
+//    } else {
+//      process.currentDirectoryPath = packageDirectoryURL.path
+//    }
+//    process.standardOutput = pipe
+//    process.standardError = errorPipe
+//    return process
+//  }
+//
+//  static func verifyPackageDump(at directoryURL: URL, withDecoder decoder: JSONDecoder) -> Promise<RepoDetail> {
+//    let pipe = Pipe()
+//    let errorPipe = Pipe()
+//    let process = dumpPackageProcessAt(directoryURL, outputTo: pipe, errorsTo: errorPipe)
+//    let processPromise = Promise<RepoDetail> { resolver in
+//      process.terminationHandler = {
+//        _ in
+//
+//        guard process.terminationStatus == 0 else {
+//          let error: PackageError
+//          if process.terminationStatus == 15 {
+//            error = .dumpTimeout
+//          } else {
+//            error = .badDump(String(data: errorPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8))
+//          }
+//          debugPrint(error)
+//          resolver.reject(error)
+//          processSemaphore.signal()
+//          return
+//        }
+//
+//        let package: Package
+//        do {
+//          package = try decoder.decode(Package.self, from: pipe.fileHandleForReading.readDataToEndOfFile())
+//        } catch {
+//          resolver.reject(PackageError.decodingError(error))
+//          processSemaphore.signal()
+//          return
+//        }
+//
+//        let repoDetail: RepoDetail
+//        do {
+//          repoDetail = try RepoDetail(package: package)
+//        } catch {
+//          resolver.reject(error)
+//          processSemaphore.signal()
+//          return
+//        }
+//
+//        resolver.fulfill(repoDetail)
+//        processSemaphore.signal()
+//      }
+//
+//
+//    }
+//
+//    processSemaphore.wait()
+//    process.launch()
+//
+//    DispatchQueue.main.asyncAfter(deadline: .now() + processTimeout){
+//      process.terminate()
+//    }
+//
+//    return processPromise
+//
+//
+////  debugPrint(directoryURL.lastPathComponent)
+////    let timeout =
+////    after(seconds: processTimeout)
+////
+////    return  timeout.then({
+////      return Promise<RepoUrlReport>.init(error: PackageError.dumpTimeout)
+////      })
+//
+//
+//  }
 
   static func verifyPackage(at gitURL: URL, withSession session: URLSession, usingDecoder decoder: JSONDecoder) -> Promise<RepoUrlReport> {
-    firstly {
-      download(gitURL, withSession: session)
+    let downloader = PackageDownloader()
+    let parser = ProcessPackageParser()
+    return firstly {
+      downloader.download(gitURL, withSession: session)
     }.then { downloadURL in
-      verifyPackageDump(at: downloadURL, withDecoder: decoder)
+      parser.verifyPackageDump(at: downloadURL, withDecoder: decoder)
     }.map { detail in
       debugPrint("Verified \(gitURL)")
       return RepoUrlReport(url: gitURL, result: .success(detail))
