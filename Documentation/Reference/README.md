@@ -16,6 +16,7 @@
 -   [Configuration](structs/Configuration.md)
 -   [Diff](structs/Diff.md)
 -   [GitHubRawUrlBuilder](structs/GitHubRawUrlBuilder.md)
+-   [GitHubResolver](structs/GitHubResolver.md)
 -   [GitUrlListValidator](structs/GitUrlListValidator.md)
 -   [ListFetcher](structs/ListFetcher.md)
 -   [ListValidationError](structs/ListValidationError.md)
