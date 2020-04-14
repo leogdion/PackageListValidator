@@ -6,17 +6,45 @@ import PromiseKit
   import FoundationNetworking
 #endif
 
-public struct Diff: ParsableCommand {
+struct Status {
+  let maximumCount = 10
+  let totalCount: Int
+  var errorCount = 0
+  var successCount = 0
+  var reports = [SwiftPackageReport]()
+
+  mutating func update(with report: SwiftPackageReport, to _: inout TextOutputStream) {
+    switch report.result {
+    case .failure:
+      errorCount += 1
+    case .success:
+      successCount += 1
+    }
+
+    reports.append(report)
+
+    while reports.count > 10 {
+      _ = reports.dropFirst()
+    }
+
+    print("\(errorCount)/\(successCount)/\(totalCount)")
+  }
+}
+
+extension FileHandle: TextOutputStream {
+  public func write(_ string: String) {
+    guard let data = string.data(using: .utf8) else { return }
+    write(data)
+  }
+}
+
+public struct All: ParsableCommand {
   @Argument(default: "packages.json")
   var path: String?
 
   public init() {}
 
   public func run() throws {
-    let listRepoSpecs = RepoSpecification(repositoryName: "SwiftPMLibrary", userName: "daveverwer", branchName: "master")
-    let rawUrlResolver = GitHubRawUrlBuilder()
-    let listUrl = rawUrlResolver.url(basedOn: listRepoSpecs, forFileName: "packages.json")
-
     let session: URLSession = URLSession(configuration: Configuration.default.config)
     let decoder = JSONDecoder()
     let packageListJsonURLParser: PackageListJsonURLParserProtocol = PackageListJsonURLParser()
@@ -33,8 +61,7 @@ public struct Diff: ParsableCommand {
 
     // Based on arguments find the `package.json` file
     guard let url = packagesJsonURL else {
-      print("Error: Unable to find packages.json to validate.")
-      throw NotImplementError()
+      throw ValidationError("Unable to find packages.json to validate.")
     }
 
     let packageUrls: [URL]
@@ -53,14 +80,26 @@ public struct Diff: ParsableCommand {
       Self.exit(withError: error)
     }
 
-    print("Checking each url for valid package dump.")
-    let filter = PackageFilter(type: .diffWith(ListFetcher(listURL: listUrl)))
-    let reporter = SwiftPackageReporter(logger: nil)
+    print(listValidators.map {
+      type(of: $0)
+        .successDescription
+        .padding(toLength: 25, withPad: " ", startingAt: 0) + "\u{001B}[32m✓\u{001B}[0m"
+    }
+    .joined(separator: "\n"))
+
+    print("Checking each url for valid package dump\u{001B}[5m...\u{001B}[0m")
+    var status = Status(totalCount: packageUrls.count)
+    let filter = PackageFilter(type: .none)
+    let reporter = SwiftPackageReporter { report in
+      var output = FileHandle.standardOutput as TextOutputStream
+      status.update(with: report, to: &output)
+    }
     _ = firstly {
       filter.filterRepos(packageUrls, withSession: session, usingDecoder: decoder)
     }.then { urls in
       reporter.parseRepos(urls, withSession: session, usingDecoder: decoder)
     }.done { reports in
+
       let error = ReportError(reports)
 
       if error == nil {

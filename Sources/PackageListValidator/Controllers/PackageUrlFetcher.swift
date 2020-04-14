@@ -1,10 +1,6 @@
 import Foundation
 import PromiseKit
 
-public protocol PackageUrlFetcherProtocol {
-  func getPackageSwiftURL(for gitURL: URL) -> Promise<URL>
-}
-
 public struct PackageUrlFetcher: PackageUrlFetcherProtocol {
   /**
    Based on repository url, find the raw url to the Package.swift file.

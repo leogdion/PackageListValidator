@@ -1,5 +1,4 @@
 import Foundation
-import PromiseKit
 
 #if canImport(FoundationNetworking)
   import FoundationNetworking
@@ -14,7 +13,7 @@ public struct ListFetcher: ListFetcherProtocol {
       } else if let data = data {
         completed(Result { try decoder.decode([URL].self, from: data) })
       } else {
-        completed(.failure(PMKError.invalidCallingConvention))
+        completed(.failure(InvalidCallingConvention))
       }
     }
     task.resume()

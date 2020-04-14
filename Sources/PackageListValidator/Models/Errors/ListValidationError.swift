@@ -1,7 +1,7 @@
 public struct ListValidationError: Error {
-  let errors: [ValidationError]
+  let errors: [ListValidationChildError]
 
-  init?(errors: [ValidationError]) {
+  init?(errors: [ListValidationChildError]) {
     guard errors.count > 0 else {
       return nil
     }

@@ -15,9 +15,9 @@ public struct SwiftPackageReporter {
     }.then { downloadURL in
       self.parser.verifyPackageDump(at: downloadURL, withDecoder: decoder)
     }.map { detail in
-      return SwiftPackageReport(url: gitURL, result: .success(detail))
+      SwiftPackageReport(url: gitURL, result: .success(detail))
     }.recover(only: PackageError.self) { error -> Guarantee<SwiftPackageReport> in
-      return Guarantee {
+      Guarantee {
         $0(SwiftPackageReport(url: gitURL, result: .failure(error)))
       }
     }
