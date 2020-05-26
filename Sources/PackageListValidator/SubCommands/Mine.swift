@@ -2,7 +2,7 @@ import ArgumentParser
 import Foundation
 
 public struct Mine: ParsableCommand {
-  @Argument(default: "Current Directory")
+  @Argument(default: nil)
   var directory: String?
 
   public init() {}
