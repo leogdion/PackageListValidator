@@ -1,6 +1,9 @@
 **EXTENSION**
 
 # `PackageFilterProtocol`
+```swift
+public extension PackageFilterProtocol
+```
 
 ## Methods
 ### `filterRepos(_:withSession:usingDecoder:)`

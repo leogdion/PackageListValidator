@@ -1,6 +1,9 @@
 **EXTENSION**
 
 # `SwiftPackageReporter`
+```swift
+public extension SwiftPackageReporter
+```
 
 ## Methods
 ### `parseRepos(_:withSession:usingDecoder:)`

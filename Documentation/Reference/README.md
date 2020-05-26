@@ -1,3 +1,5 @@
+# Reference Documentation
+
 ## Protocols
 
 -   [ListFetcherProtocol](protocols/ListFetcherProtocol.md)
@@ -45,6 +47,7 @@
 -   [PackageFilterProtocol](extensions/PackageFilterProtocol.md)
 -   [SwiftPackageReporter](extensions/SwiftPackageReporter.md)
 
-# Reference Documentation
 This reference documentation was generated with
 [SourceDocs](https://github.com/eneko/SourceDocs).
+
+Generated at 2020-05-26 20:39:54 +0000

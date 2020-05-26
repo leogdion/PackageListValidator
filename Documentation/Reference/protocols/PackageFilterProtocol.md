@@ -11,4 +11,9 @@ public protocol PackageFilterProtocol
 
 ```swift
 func filterRepos(
+  _ packageUrls: [URL],
+  withSession session: URLSession,
+  usingDecoder decoder: JSONDecoder,
+  _ completed: @escaping (Result<[URL], Error>) -> Void
+)
 ```
