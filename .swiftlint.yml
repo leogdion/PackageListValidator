@@ -11,3 +11,5 @@ excluded:
   - Tests/*/XCTestManifests.swift
   - DerivedData
   - .build
+  - SwiftPMLibrary
+  - Sources/*/PackageListValidator.swift
