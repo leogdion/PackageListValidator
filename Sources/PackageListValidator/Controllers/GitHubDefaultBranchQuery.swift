@@ -5,6 +5,10 @@ import Foundation
 #endif
 
 struct GitHubDefaultBranchQuery: DefaultBranchQuery {
+  init() {
+    self.decoder = JSONDecoder()
+    self.session = URLSession(configuration: Configuration.default.config)
+  }
   struct GitHubRepo: Codable {
     let defaultBranch: String
 

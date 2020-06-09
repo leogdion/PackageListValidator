@@ -21,10 +21,10 @@ struct Status {
       successCount += 1
     }
 
-    reports.append(report)
+    reports.insert(report, at: 0)
 
     while reports.count > 10 {
-      _ = reports.dropFirst()
+      reports = reports.dropLast(max(reports.underestimatedCount - 10, 1))
     }
 
     print("\u{1B}7\(errorCount)/\(successCount)/\(totalCount)\u{1B}8")
@@ -90,7 +90,7 @@ public struct All: ParsableCommand {
     print("Checking each url for valid package dump\u{001B}[5m...\u{001B}[0m")
     var status = Status(totalCount: packageUrls.count)
     let filter = PackageFilter(type: .none)
-    let reporter = SwiftPackageReporter { report in
+    let reporter = SwiftPackageReporter(downloader: TemporaryPackageDownloader(branchQuery: JustBranchQuery(branchName: "master"))) { report in
       var output = FileHandle.standardOutput as TextOutputStream
       status.update(with: report, to: &output)
     }

@@ -6,11 +6,12 @@ import PromiseKit
 #endif
 
 public struct TemporaryPackageDownloader: PackageDownloader {
+  let branchQuery : DefaultBranchQuery
   let urlFetcher: PackageUrlFetcherProtocol = PackageUrlFetcher()
   let tempDataStorage: TemporaryDataStorage = TemporaryDirDataStorage()
 
   public func download(_ packageSwiftURL: URL, withSession session: URLSession) -> Promise<URL> {
-    urlFetcher.getPackageSwiftURL(for: packageSwiftURL).then { url in
+    urlFetcher.getPackageSwiftURL(for: packageSwiftURL, resolvingWith: self.branchQuery).then { url in
       Promise<Data> { resolver in
         // debugPrint("Downloading \(url)...")
         session.dataTask(with: url) {

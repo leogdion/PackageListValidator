@@ -6,7 +6,7 @@ import PromiseKit
 #endif
 
 public struct SwiftPackageReporter {
-  let downloader: PackageDownloader = TemporaryPackageDownloader()
+  let downloader: PackageDownloader
   let parser: PackageParser = ProcessPackageParser()
   let logger: ((SwiftPackageReport) -> Void)?
   func verifyPackage(at gitURL: URL, withSession session: URLSession, usingDecoder decoder: JSONDecoder) -> Promise<SwiftPackageReport> {

@@ -7,7 +7,7 @@ public struct PackageUrlFetcher: PackageUrlFetcherProtocol {
    - Parameter gitURL: Repository URL
    - Returns: raw git URL, if successful; other `invalidURL` if not proper git repo url or `unsupportedHost` if the host is not currently supported.
    */
-  public func getPackageSwiftURL(for gitURL: URL) -> Promise<URL> {
+  public func getPackageSwiftURL(for gitURL: URL, resolvingWith branchQuery: DefaultBranchQuery) -> Promise<URL> {
     // return Promise{
     // (resolver) in
     guard let hostString = gitURL.host else {
@@ -19,6 +19,6 @@ public struct PackageUrlFetcher: PackageUrlFetcherProtocol {
       return Promise(error: PackageError.unsupportedHost(hostString))
     }
 
-    return host.packageUrl(for: gitURL)
+    return host.packageUrl(for: gitURL, using: branchQuery)
   }
 }

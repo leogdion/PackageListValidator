@@ -54,7 +54,7 @@ public struct Diff: ParsableCommand {
 
     print("Checking each url for valid package dump.")
     let filter = PackageFilter(type: .diffWith(ListFetcher(listURL: listUrl)))
-    let reporter = SwiftPackageReporter(logger: nil)
+    let reporter = SwiftPackageReporter(downloader: TemporaryPackageDownloader(branchQuery: GitHubDefaultBranchQuery()), logger: nil)
     _ = firstly {
       filter.filterRepos(packageUrls, withSession: session, usingDecoder: decoder)
     }.then { urls in
