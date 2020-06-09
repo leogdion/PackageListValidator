@@ -57,11 +57,11 @@ public struct Diff: ParsableCommand {
     let reporter = SwiftPackageReporter(downloader: TemporaryPackageDownloader(branchQuery: GitHubDefaultBranchQuery()), logger: nil)
     _ = firstly {
       filter.filterRepos(packageUrls, withSession: session, usingDecoder: decoder)
-    }.map({ urls in
-      print(urls.map { $0.absoluteString      }.joined(separator: "\n"))
+    }.map { urls in
+      print(urls.map { $0.absoluteString }.joined(separator: "\n"))
       return urls
-    }).then { urls in
-      return reporter.parseRepos(urls, withSession: session, usingDecoder: decoder)
+    }.then { urls in
+      reporter.parseRepos(urls, withSession: session, usingDecoder: decoder)
     }.done { reports in
       let error = ReportError(reports)
 

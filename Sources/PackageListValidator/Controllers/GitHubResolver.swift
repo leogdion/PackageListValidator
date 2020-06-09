@@ -6,10 +6,11 @@ import PromiseKit
 #endif
 
 public struct GitHubResolver: GitHostResolver {
-  public init (branchQuery : DefaultBranchQuery) {
+  public init(branchQuery: DefaultBranchQuery) {
     self.branchQuery = branchQuery
   }
-  let branchQuery : DefaultBranchQuery
+
+  let branchQuery: DefaultBranchQuery
   let rawUrlBuilder: RawUrlBuilder = GitHubRawUrlBuilder()
   func packageUrl(for gitURL: URL) -> Promise<URL> {
     Promise { resolver in

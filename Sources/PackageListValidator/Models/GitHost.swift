@@ -5,7 +5,7 @@ import PromiseKit
  List of git hosts for which we can pull single files
  */
 enum GitHost: String {
-  static let resolvers: [GitHost: (DefaultBranchQuery) -> GitHostResolver] = [.github: {GitHubResolver(branchQuery: $0)}]
+  static let resolvers: [GitHost: (DefaultBranchQuery) -> GitHostResolver] = [.github: { GitHubResolver(branchQuery: $0) }]
   case github = "github.com"
 }
 

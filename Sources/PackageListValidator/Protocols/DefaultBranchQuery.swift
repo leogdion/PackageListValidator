@@ -6,7 +6,7 @@ public protocol DefaultBranchQuery {
 
 public extension DefaultBranchQuery {
   func defaultBranchName(forRepoName repo: String, withOwner owner: String) -> Promise<String> {
-    Promise { (resolver) in
+    Promise { resolver in
       self.defaultBranchName(forRepoName: repo, withOwner: owner, resolver.resolve)
     }
   }
