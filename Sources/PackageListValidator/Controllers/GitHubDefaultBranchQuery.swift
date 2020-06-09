@@ -33,6 +33,8 @@ struct GitHubDefaultBranchQuery: DefaultBranchQuery {
         let authString = "Basic \(base64EncodedCredential)"
         urlRequest.addValue(authString, forHTTPHeaderField: "Authorization")
       }
+    } else {
+      completed(.success("master"))
     }
     session.dataTask(with: urlRequest) { data, _, error in
       if let error = error {
