@@ -7,10 +7,10 @@ public struct PackageUrlFetcher: PackageUrlFetcherProtocol
 ```
 
 ## Methods
-### `getPackageSwiftURL(for:)`
+### `getPackageSwiftURL(for:resolvingWith:)`
 
 ```swift
-public func getPackageSwiftURL(for gitURL: URL) -> Promise<URL>
+public func getPackageSwiftURL(for gitURL: URL, resolvingWith branchQuery: DefaultBranchQuery) -> Promise<URL>
 ```
 
 > Based on repository url, find the raw url to the Package.swift file.

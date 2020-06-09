@@ -7,8 +7,8 @@ public protocol PackageUrlFetcherProtocol
 ```
 
 ## Methods
-### `getPackageSwiftURL(for:)`
+### `getPackageSwiftURL(for:resolvingWith:)`
 
 ```swift
-func getPackageSwiftURL(for gitURL: URL) -> Promise<URL>
+func getPackageSwiftURL(for gitURL: URL, resolvingWith branchQuery: DefaultBranchQuery) -> Promise<URL>
 ```
