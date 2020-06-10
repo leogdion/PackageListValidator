@@ -39,7 +39,10 @@ extension FileHandle: TextOutputStream {
 }
 
 public struct All: ParsableCommand {
-  @Argument(default: "packages.json")
+  public static var configuration
+      = CommandConfiguration(abstract: "Verify every package in the JSON file.")
+  
+  @Argument(default: "packages.json", help: "Path to the JSON file containing the repository list")
   var path: String?
 
   public init() {}

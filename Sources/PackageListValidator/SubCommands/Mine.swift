@@ -2,7 +2,11 @@ import ArgumentParser
 import Foundation
 
 public struct Mine: ParsableCommand {
-  @Argument(default: nil)
+  
+  public static var configuration
+      = CommandConfiguration(abstract: "Verify the package in the directory specified or the current directory.")
+  
+  @Argument(default: nil, help: "The directory to verify if the Swift package is valid.")
   var directory: String?
 
   public init() {}

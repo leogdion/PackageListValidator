@@ -7,7 +7,10 @@ import PromiseKit
 #endif
 
 public struct Diff: ParsableCommand {
-  @Argument(default: "packages.json")
+  public static var configuration
+      = CommandConfiguration(abstract: "Verify only packages which are not contained in the current master list.")
+  
+  @Argument(default: "packages.json", help: "Path to the JSON file containing the repository list.")
   var path: String?
 
   public init() {}
