@@ -51,11 +51,82 @@ There are two methods to run this application:
 
 ## Usage
 
+```
+USAGE: swiftpmls <subcommand>
+
+OPTIONS:
+  -h, --help              Show help information.
+
+SUBCOMMANDS:
+  all                     Verify every package in the JSON file.
+  mine                    Verify the package in the directory specified or the
+                          current directory.
+  diff                    Verify only packages which are not contained in the
+                          current master list.
+```
+
 Once you are able to run the application there are three subcommands available:
 
 * **mine** - verify the Swift package in the directory specified
 * **all** - verify all the Swift packages in the `packages.json` specified
 * **diff** - verify only Swift packages in the `packages.json` specified which are not contained in the master `packages.json`
+
+### Mine - verifying your Swift Package
+
+```
+OVERVIEW: Verify the package in the directory specified or the current
+directory.
+USAGE: swiftpmls mine [<directory>]
+
+ARGUMENTS:
+  <directory>             The directory to verify if the Swift package is
+                          valid. 
+
+OPTIONS:
+  -h, --help              Show help information.
+ ```
+
+### All - verifying all Swift Packages
+
+```
+OVERVIEW: Verify every package in the JSON file.
+USAGE: swiftpmls diff [<path>]
+
+ARGUMENTS:
+  <path>                  Path to the JSON file containing the repository list.
+                          (default: packages.json)
+
+OPTIONS:
+  -h, --help              Show help information.
+ ```
+ 
+### Diff - verifying new Swift Packages
+
+```
+OVERVIEW: Verify only packages which are not contained in the current master
+list.
+USAGE: swiftpmls all [<path>]
+
+ARGUMENTS:
+  <path>                  Path to the JSON file containing the repository list
+                          (default: packages.json)
+
+OPTIONS:
+  -h, --help              Show help information.
+ ```
+
+## How it Works
+
+* Contain no duplicates 
+* Sorted in alphabetical order
+* Correct url format of each package (i.e.  end in _.git_)
+
+For each package to valid, it must:
+
+* Have a valid and accessible (i.e. via public repo) `Package.swift` file
+* Contains one valid product (library or executable)
+
+[Documentation Here](/Documentation/Reference/README.md)
 
 ## Built Using
 
@@ -67,6 +138,3 @@ Once you are able to run the application there are three subcommands available:
 * leo
 * dave
 
-# DESCRIPTION HERE
-
-[Documentation Here](/Documentation/Reference/README.md)
