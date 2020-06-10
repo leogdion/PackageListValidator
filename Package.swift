@@ -20,10 +20,16 @@ let package = Package(
     )
   ],
   dependencies: [
-    // Dependencies declare other packages that this package depends on.
-    // .package(url: /* package url */, from: "1.0.0"),
+    // User deps
+    .package(url: "https://github.com/mxcl/PromiseKit.git", from: "7.0.0-alpha.3"),
     .package(url: "https://github.com/apple/swift-argument-parser.git", from: "0.0.4"),
-    .package(url: "https://github.com/mxcl/PromiseKit.git", from: "7.0.0-alpha.3")
+
+    // Dev deps
+    .package(url: "https://github.com/shibapm/Komondor", from: "1.0.5"), // dev
+    .package(url: "https://github.com/eneko/SourceDocs", from: "1.0.0"), // dev
+    .package(url: "https://github.com/nicklockwood/SwiftFormat.git", from: "0.41.2"), // dev
+    .package(url: "https://github.com/f-meloni/Rocket", from: "0.1.0"), // dev
+    .package(url: "https://github.com/Realm/SwiftLint.git", from: "0.39.2") // dev
   ],
   targets: [
     // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -42,3 +48,23 @@ let package = Package(
     )
   ]
 )
+
+#if canImport(PackageConfig)
+  import PackageConfig
+
+  let config = PackageConfiguration([
+    "komondor": [
+      "pre-push": "swift test --enable-code-coverage --enable-test-discovery",
+      "pre-commit": [
+        "swift test --enable-code-coverage --enable-test-discovery --generate-linuxmain",
+        "swift run swiftformat .",
+        "swift run swiftlint autocorrect",
+        "swift run sourcedocs generate --spm-module PackageListValidator",
+        "swift run swiftpmls mine",
+        "git add .",
+        "swift run swiftformat --lint .",
+        "swift run swiftlint"
+      ]
+    ]
+  ]).write()
+#endif

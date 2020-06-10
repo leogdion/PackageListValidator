@@ -26,6 +26,7 @@ struct GitHubDefaultBranchQuery: DefaultBranchQuery {
   func defaultBranchName(forRepoName repo: String, withOwner owner: String, _ completed: @escaping ((Result<String, Error>) -> Void)) {
     let url = apiBaseURL.appendingPathComponent(owner).appendingPathComponent(repo)
     var urlRequest = URLRequest(url: url)
+    #warning("use the configuration rather environment")
     if let token = ProcessInfo.processInfo.environment["GITHUB_API_TOKEN"],
       let username = ProcessInfo.processInfo.environment["GITHUB_API_USERNAME"] {
       let userPasswordString = "\(username):\(token)"
