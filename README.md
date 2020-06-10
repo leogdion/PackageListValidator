@@ -135,7 +135,11 @@ https://github.com/owner/repositoryName.git
 
 If the url does not follow this format, the url is marked as invalid.
 
-### List Order
+Therefore, make sure your package:
+
+* ends with a `.git` extension
+
+#### List Order
 
 Next, each url must be in the correct alphabetical order. This is done by transforming each url to it's lowercase format and using the less than operator `<`:
 
@@ -147,7 +151,11 @@ Next, each url must be in the correct alphabetical order. This is done by transf
 
 Once the sorted is completed, the application then compares the specified `packages.json` with the sorted list. If there are any differences, the list is determined to be invalid.
 
-### List Duplicates
+Therefore, make sure your package:
+
+* is listen in the correct order
+
+#### List Duplicates
 
 In order to make sure each url is unique (i.e. no case variants), the application makes a lowercase absolute URL string from URL and counts instances for each lowercase url in the list:
 
@@ -157,6 +165,10 @@ In order to make sure each url is unique (i.e. no case variants), the applicatio
 ```
 
 This creates a list of URLs which more than one value. If there are URLs with duplicates, it is marked as invalid.
+
+Therefore, make sure your package:
+
+* make sure your url is not already listed
 
 ### Validating Each Repository
 
@@ -172,6 +184,10 @@ To determine whether a package is valid, it must contain a valid Package.swift i
 The first step in order to make sure a Swift package is valid is downloading the `Package.swift` file of the package. What this means luckily, is that the application does not need to clone the entire repo. Based on the determined host of the repository, the application can transform the repository url to the raw url of the Package.swift of the repository. ** At this time, the validation tool only works with GitHub, however if you are using another support can be easily added. ** Therefore, with GitHub, we can use `https://raw.githubusercontent.com` to determine the url of `Package.swift` in the repository.
 
 However, the missing part of the url is the default branch of the repository. Therefore, this is the larger challenge of the application.
+
+Therefore, make sure your package:
+
+* make sure the git host is supported (i.e. GitHub)
 
 #### Determining the Default Branch
 
@@ -193,6 +209,15 @@ If the url cannot be deciphered, the package is marked as invalid. Otherwise, th
 Once the url is determined, the application downloads the `Package.swift` file. Once the file is downloaded to a tempoary directory, the application runs `swift pacakge dump-package` to get the structure of the Swift package.
 
 A simplified `Codable` version of the JSON dumped is decoded from standard output. If the dump reveals there is at least one valid product, then the package is valid.
+
+Therefore, make sure your package:
+
+* Your `Package.swift` is valid
+* Updated to at least Swift version 4.0:
+
+  ```
+  // swift-tools-version:4.0
+  ```
 
 ### Code Documentation
 
