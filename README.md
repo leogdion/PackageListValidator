@@ -192,6 +192,8 @@ If the url cannot be deciphered, the package is marked as invalid. Otherwise, th
 
 Once the url is determined, the application downloads the `Package.swift` file. Once the file is downloaded to a tempoary directory, the application runs `swift pacakge dump-package` to get the structure of the Swift package.
 
+A simplified `Codable` version of the JSON dumped is decoded from standard output. If the dump reveals there is at least one valid product, then the package is valid.
+
 ### Code Documentation
 
 [Documentation Here](/Documentation/Reference/README.md)
