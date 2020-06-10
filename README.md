@@ -225,11 +225,11 @@ Therefore, make sure your package:
 
 ## Built Using
 
-* PromiseKit
-* Swift Argument Parser
+* [mxcl/PromiseKit](https://github.com/mxcl/PromiseKit) - Promises for Swift & ObjC
+* [apple/swift-argument-parser](https://github.com/apple/swift-argument-parser) - Straightforward, type-safe argument parsing for Swift
 
 ## Authors 
 
-* leo
-* dave
+* [Leo Dion](https://github.com/brightdigit) [@leogdion](https://twitter.com/leogdion)
+* [Dave Verwer](https://github.com/daveverwer/) [@daveverwer](https://twitter.com/daveverwer/)
 
