@@ -188,9 +188,9 @@ GITHUB_API_TOKEN=abc123 GITHUB_API_USERNAME=username@github swiftpmls diff
 
 If the url cannot be deciphered, the package is marked as invalid. Otherwise, the next step is downloading the Swift package.
 
-#### Downloading the Package.swift
-
 #### Validating the Swift Package
+
+Once the url is determined, the application downloads the `Package.swift` file. Once the file is downloaded to a tempoary directory, the application runs `swift pacakge dump-package` to get the structure of the Swift package.
 
 ### Code Documentation
 
@@ -201,7 +201,7 @@ If the url cannot be deciphered, the package is marked as invalid. Otherwise, th
 * PromiseKit
 * Swift Argument Parser
 
-## Authros 
+## Authors 
 
 * leo
 * dave
