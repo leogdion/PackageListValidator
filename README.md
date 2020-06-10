@@ -162,11 +162,31 @@ This creates a list of URLs which more than one value. If there are URLs with du
 
 To determine whether a package is valid, it must contain a valid Package.swift in its default branch. This means the application needs to:
 
+* Find the url pattern for downloads
 * Find the default branch of the repository
 * Download the Package.swift file from the repository
 * Count the number products in the Swift Package
 
+#### Determining the URL
+
+The first step in order to make sure a Swift package is valid is downloading the `Package.swift` file of the package. What this means luckily, is that the application does not need to clone the entire repo. Based on the determined host of the repository, the application can transform the repository url to the raw url of the Package.swift of the repository. ** At this time, the validation tool only works with GitHub, however if you are using another support can be easily added. ** Therefore, with GitHub, we can use `https://raw.githubusercontent.com` to determine the url of `Package.swift` in the repository.
+
+However, the missing part of the url is the default branch of the repository. Therefore, this is the larger challenge of the application.
+
 #### Determining the Default Branch
+
+By default, GitHub uses `master` as the default branch of every repository. However there are many cases, where `master` is not the default branch. Therefore the application needs to call the GitHub API to find that setting. However, in order to make sure the GitHub API Limit is not reached, there are few ways the application avoids this call:
+
+* Test for the `Package.swift` in branch `master`
+* Do not make this call in `all` since that call be as many 3000 repositories
+
+In order to allow the GitHub API call, the `GITHUB_API_TOKEN` and `GITHUB_API_USERNAME` must be as environment variables, such as:
+
+```
+GITHUB_API_TOKEN=abc123 GITHUB_API_USERNAME=username@github swiftpmls diff 
+```
+
+If the url cannot be deciphered, the package is marked as invalid. Otherwise, the next step is downloading the Swift package.
 
 #### Downloading the Package.swift
 
