@@ -4,9 +4,9 @@ import PromiseKit
 public struct PackageFilter: PackageFilterProtocol {
   public let type: PackageFilterType
 
-  public func filterRepos(
+  public func filterRepos<SessionType: Session>(
     _ packageUrls: [URL],
-    withSession session: URLSession,
+    withSession session: SessionType,
     usingDecoder decoder: JSONDecoder,
     _ completed: @escaping (Result<[URL], Error>) -> Void
   ) {

@@ -10,9 +10,9 @@ public protocol PackageFilterProtocol
 ### `filterRepos(_:withSession:usingDecoder:_:)`
 
 ```swift
-func filterRepos(
+func filterRepos<SessionType: Session>(
   _ packageUrls: [URL],
-  withSession session: URLSession,
+  withSession session: SessionType,
   usingDecoder decoder: JSONDecoder,
   _ completed: @escaping (Result<[URL], Error>) -> Void
 )

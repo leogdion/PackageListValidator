@@ -6,8 +6,9 @@ import Foundation
 
 public struct ListFetcher: ListFetcherProtocol {
   let listURL: URL
-  public func listWithSession(_ session: URLSession, usingDecoder decoder: JSONDecoder, _ completed: @escaping (Result<[URL], Error>) -> Void) {
-    let task = session.dataTask(with: listURL) { data, _, error in
+  public func listWithSession<SessionType: Session>(_ session: SessionType, usingDecoder decoder: JSONDecoder, _ completed: @escaping (Result<[URL], Error>) -> Void) {
+    let request = session.request(withURL: listURL)
+    session.begin(request: request) { data, _, error in
       if let error = error {
         completed(.failure(error))
       } else if let data = data {
@@ -16,6 +17,5 @@ public struct ListFetcher: ListFetcherProtocol {
         completed(.failure(InvalidCallingConvention))
       }
     }
-    task.resume()
   }
 }

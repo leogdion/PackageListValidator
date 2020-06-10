@@ -10,14 +10,13 @@ public struct TemporaryPackageDownloader: PackageDownloader {
   let urlFetcher: PackageUrlFetcherProtocol = PackageUrlFetcher()
   let tempDataStorage: TemporaryDataStorage = TemporaryDirDataStorage()
 
-  public func download(_ packageSwiftURL: URL, withSession session: URLSession) -> Promise<URL> {
+  public func download<SessionType: Session>(_ packageSwiftURL: URL, withSession session: SessionType) -> Promise<URL> {
     urlFetcher.getPackageSwiftURL(for: packageSwiftURL, resolvingWith: branchQuery).then { url in
       Promise<Data> { resolver in
-        // debugPrint("Downloading \(url)...")
-        session.dataTask(with: url) {
+        let request = session.request(withURL: url)
+        session.begin(request: request) {
           resolver.resolve($2, $0)
-          // debugPrint("Downloaded \(url)...")
-        }.resume()
+        }
       }
     }.then { data in
       Promise<URL> { resolver in

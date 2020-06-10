@@ -5,5 +5,5 @@ import Foundation
 #endif
 
 public protocol ListFetcherProtocol {
-  func listWithSession(_ session: URLSession, usingDecoder decoder: JSONDecoder, _ completed: @escaping (Result<[URL], Error>) -> Void)
+  func listWithSession<SessionType: Session>(_ session: SessionType, usingDecoder decoder: JSONDecoder, _ completed: @escaping (Result<[URL], Error>) -> Void)
 }
