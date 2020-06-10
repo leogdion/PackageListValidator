@@ -4,41 +4,51 @@ import Foundation
   import FoundationNetworking
 #endif
 
-struct GitHubDefaultBranchQuery: DefaultBranchQuery {
-  init() {
-    decoder = JSONDecoder()
-    session = URLSession(configuration: Configuration.default.config)
+public struct GitHubRepo: Codable {
+  public init (defaultBranch : String) {
+    self.defaultBranch = defaultBranch
+  }
+  public let defaultBranch: String
+
+  // swiftlint:disable:next nesting
+  enum CodingKeys: String, CodingKey {
+    case defaultBranch = "default_branch"
+  }
+}
+
+public struct GitHubDefaultBranchQuery<SessionType: Session>: DefaultBranchQuery {
+  public init(session: SessionType, decoder : JSONDecoder, baseURL: URL? = nil, gitHubUserName : String? = nil, gitHubToken : String? = nil) {
+    self.decoder = decoder
+    self.session = session
+    self.apiBaseURL = baseURL ?? GitHubResolver.defaultAPIBaseURL
+    self.gitHubUserName = gitHubUserName ?? Configuration.default.gitHubUserName
+    self.gitHubToken = gitHubUserName ?? Configuration.default.gitHubToken
   }
 
-  struct GitHubRepo: Codable {
-    let defaultBranch: String
 
-    // swiftlint:disable:next nesting
-    enum CodingKeys: String, CodingKey {
-      case defaultBranch = "default_branch"
-    }
-  }
-
-  static let defaultAPIBaseURL = URL(string: "https://api.github.com/repos")!
-  let apiBaseURL = defaultAPIBaseURL
-  let decoder: JSONDecoder
-  let session: URLSession
-  func defaultBranchName(forRepoName repo: String, withOwner owner: String, _ completed: @escaping ((Result<String, Error>) -> Void)) {
+  
+  public let apiBaseURL : URL
+  public let decoder: JSONDecoder
+  public let session: SessionType
+  public let gitHubToken : String?
+  public let gitHubUserName : String?
+  public func defaultBranchName(forRepoName repo: String, withOwner owner: String, _ completed: @escaping ((Result<String, Error>) -> Void)) {
     let url = apiBaseURL.appendingPathComponent(owner).appendingPathComponent(repo)
-    var urlRequest = URLRequest(url: url)
+    var urlRequest = session.request(withURL: url)
     #warning("use the configuration rather environment")
-    if let token = ProcessInfo.processInfo.environment["GITHUB_API_TOKEN"],
-      let username = ProcessInfo.processInfo.environment["GITHUB_API_USERNAME"] {
+    if let token = self.gitHubToken,
+      let username = self.gitHubUserName {
       let userPasswordString = "\(username):\(token)"
       if let userPasswordData = userPasswordString.data(using: .utf8) {
         let base64EncodedCredential = userPasswordData.base64EncodedString()
         let authString = "Basic \(base64EncodedCredential)"
-        urlRequest.addValue(authString, forHTTPHeaderField: "Authorization")
+        urlRequest.addHeader(withValue: authString, forField: "Authorization")
       }
     } else {
       completed(.success("master"))
+      return
     }
-    session.dataTask(with: urlRequest) { data, _, error in
+    session.begin(request: urlRequest) { data, _, error in
       if let error = error {
         completed(.failure(error))
         return
@@ -50,6 +60,17 @@ struct GitHubDefaultBranchQuery: DefaultBranchQuery {
       }
       let result = Result { try self.decoder.decode(GitHubRepo.self, from: data) }
       completed(result.map { $0.defaultBranch })
-    }.resume()
+    }
+  }
+}
+
+
+public extension GitHubDefaultBranchQuery where SessionType == URLSession {
+  public init (decoder : JSONDecoder = JSONDecoder()) {
+    self.decoder = decoder
+    self.session = URLSession(configuration: Configuration.default.config)
+    self.apiBaseURL = GitHubResolver.defaultAPIBaseURL
+    self.gitHubToken = Configuration.default.gitHubToken
+    self.gitHubUserName = Configuration.default.gitHubUserName
   }
 }

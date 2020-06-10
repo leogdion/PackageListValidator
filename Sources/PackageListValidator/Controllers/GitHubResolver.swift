@@ -6,6 +6,7 @@ import PromiseKit
 #endif
 
 public struct GitHubResolver: GitHostResolver {
+  public static let defaultAPIBaseURL = URL(string: "https://api.github.com/repos")!
   public init(branchQuery: DefaultBranchQuery) {
     self.branchQuery = branchQuery
   }
