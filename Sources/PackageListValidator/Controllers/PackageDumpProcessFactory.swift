@@ -19,4 +19,3 @@ public struct PackageDumpProcessFactory: PackageDumpProcessFactoryProtocol {
     return process
   }
 }
-

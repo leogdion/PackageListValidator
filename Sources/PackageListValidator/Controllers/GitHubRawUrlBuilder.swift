@@ -1,7 +1,12 @@
 import Foundation
 
 public struct GitHubRawUrlBuilder: RawUrlBuilder {
-  let rawURLComponentsBase: URLComponents = URLComponents(string: "https://raw.githubusercontent.com")!
+  public init(rawURLComponentsBase: URLComponents = Self.defaultURLComponents) {
+    self.rawURLComponentsBase = rawURLComponentsBase
+  }
+
+  public static let defaultURLComponents = URLComponents(string: "https://raw.githubusercontent.com")!
+  public let rawURLComponentsBase: URLComponents
   public func url(basedOn specifications: RepoSpecification, forFileName fileName: String) -> URL {
     var rawURLComponents = rawURLComponentsBase
     rawURLComponents.path = [

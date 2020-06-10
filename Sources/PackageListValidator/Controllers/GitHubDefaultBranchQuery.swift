@@ -5,9 +5,10 @@ import Foundation
 #endif
 
 public struct GitHubRepo: Codable {
-  public init (defaultBranch : String) {
+  public init(defaultBranch: String) {
     self.defaultBranch = defaultBranch
   }
+
   public let defaultBranch: String
 
   // swiftlint:disable:next nesting
@@ -17,27 +18,25 @@ public struct GitHubRepo: Codable {
 }
 
 public struct GitHubDefaultBranchQuery<SessionType: Session>: DefaultBranchQuery {
-  public init(session: SessionType, decoder : JSONDecoder, baseURL: URL? = nil, gitHubUserName : String? = nil, gitHubToken : String? = nil) {
+  public init(session: SessionType, decoder: JSONDecoder, baseURL: URL? = nil, gitHubUserName: String? = nil, gitHubToken _: String? = nil) {
     self.decoder = decoder
     self.session = session
-    self.apiBaseURL = baseURL ?? GitHubResolver.defaultAPIBaseURL
+    apiBaseURL = baseURL ?? GitHubResolver.defaultAPIBaseURL
     self.gitHubUserName = gitHubUserName ?? Configuration.default.gitHubUserName
-    self.gitHubToken = gitHubUserName ?? Configuration.default.gitHubToken
+    gitHubToken = gitHubUserName ?? Configuration.default.gitHubToken
   }
 
-
-  
-  public let apiBaseURL : URL
+  public let apiBaseURL: URL
   public let decoder: JSONDecoder
   public let session: SessionType
-  public let gitHubToken : String?
-  public let gitHubUserName : String?
+  public let gitHubToken: String?
+  public let gitHubUserName: String?
   public func defaultBranchName(forRepoName repo: String, withOwner owner: String, _ completed: @escaping ((Result<String, Error>) -> Void)) {
     let url = apiBaseURL.appendingPathComponent(owner).appendingPathComponent(repo)
     var urlRequest = session.request(withURL: url)
     #warning("use the configuration rather environment")
-    if let token = self.gitHubToken,
-      let username = self.gitHubUserName {
+    if let token = gitHubToken,
+      let username = gitHubUserName {
       let userPasswordString = "\(username):\(token)"
       if let userPasswordData = userPasswordString.data(using: .utf8) {
         let base64EncodedCredential = userPasswordData.base64EncodedString()
@@ -64,13 +63,12 @@ public struct GitHubDefaultBranchQuery<SessionType: Session>: DefaultBranchQuery
   }
 }
 
-
 public extension GitHubDefaultBranchQuery where SessionType == URLSession {
-  public init (decoder : JSONDecoder = JSONDecoder()) {
+  init(decoder: JSONDecoder = JSONDecoder()) {
     self.decoder = decoder
-    self.session = URLSession(configuration: Configuration.default.config)
-    self.apiBaseURL = GitHubResolver.defaultAPIBaseURL
-    self.gitHubToken = Configuration.default.gitHubToken
-    self.gitHubUserName = Configuration.default.gitHubUserName
+    session = URLSession(configuration: Configuration.default.config)
+    apiBaseURL = GitHubResolver.defaultAPIBaseURL
+    gitHubToken = Configuration.default.gitHubToken
+    gitHubUserName = Configuration.default.gitHubUserName
   }
 }
