@@ -117,14 +117,62 @@ OPTIONS:
 
 ## How it Works
 
-* Contain no duplicates 
-* Sorted in alphabetical order
-* Correct url format of each package (i.e.  end in _.git_)
+As stated above the validator first verifies the overall list and then verifies each Package individually. When validating the overall list, each url must be valid, the list can not contain duplicates, and each repository must be in alphabetical order.
 
-For each package to valid, it must:
+### Validating the List
 
-* Have a valid and accessible (i.e. via public repo) `Package.swift` file
-* Contains one valid product (library or executable)
+In order to verify the list, the `packages.json` specified must be in a valid JSON format (i.e. Array of URLs). Therefore if the application cannot read the data at the path or use the `JSONDecoder` to decode the file `decoder.decode([URL].self, from: data)`, then the list will be deemed invalid.
+
+Having decoded the `packages.json` file, the next part of the process is validating the list overall.
+
+#### URL Verification
+
+In order to make sure the list does not contain duplicates based on various scheme/protocol and extension variations, a standard repository url format has been decided:
+
+```
+https://github.com/owner/repositoryName.git
+```
+
+If the url does not follow this format, the url is marked as invalid.
+
+### List Order
+
+Next, each url must be in the correct alphabetical order. This is done by transforming each url to it's lowercase format and using the less than operator `<`:
+
+```
+    let sortedUrls = urls.sorted {
+      $0.absoluteString.lowercased() < $1.absoluteString.lowercased()
+    }
+```
+
+Once the sorted is completed, the application then compares the specified `packages.json` with the sorted list. If there are any differences, the list is determined to be invalid.
+
+### List Duplicates
+
+In order to make sure each url is unique (i.e. no case variants), the application makes a lowercase absolute URL string from URL and counts instances for each lowercase url in the list:
+
+```
+      URL(string: $0.element.absoluteString.lowercased())!
+              }.mapValues { $0.map { $0.offset } }.filter { $0.value.count > 1 }.keys)
+```
+
+This creates a list of URLs which more than one value. If there are URLs with duplicates, it is marked as invalid.
+
+### Validating Each Repository
+
+To determine whether a package is valid, it must contain a valid Package.swift in its default branch. This means the application needs to:
+
+* Find the default branch of the repository
+* Download the Package.swift file from the repository
+* Count the number products in the Swift Package
+
+#### Determining the Default Branch
+
+#### Downloading the Package.swift
+
+#### Validating the Swift Package
+
+### Code Documentation
 
 [Documentation Here](/Documentation/Reference/README.md)
 
