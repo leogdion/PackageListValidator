@@ -3,5 +3,6 @@ import XCTest
 import PackageListValidatorTests
 
 var tests = [XCTestCaseEntry]()
-tests += PackageListValidatorTests.allTests()
+tests += PackageListValidatorTests.__allTests()
+
 XCTMain(tests)

@@ -4,6 +4,8 @@ import PromiseKit
 
 public struct PackageListValidator: ParsableCommand {
   public static var configuration = CommandConfiguration(
-    subcommands: [All.self, Mine.self, Diff.self])
+    commandName: "swiftpmls",
+    subcommands: [All.self, Mine.self, Diff.self]
+  )
   public init() {}
 }

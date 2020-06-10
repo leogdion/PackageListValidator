@@ -3,6 +3,7 @@ import PromiseKit
 
 public struct ProcessPackageParser: PackageParser {
   let processFactory: PackageDumpProcessFactoryProtocol = PackageDumpProcessFactory()
+  #warning("Read From Configuration")
   let maximumProcesses = 3
   let processTimeout = 10.0
   let processSemaphore: DispatchSemaphore
