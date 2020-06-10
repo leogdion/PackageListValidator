@@ -17,6 +17,56 @@
 [![Code Climate issues](https://img.shields.io/codeclimate/issues/SwiftPackageIndex/PackageListValidator)](https://codeclimate.com/github/SwiftPackageIndex/PackageListValidator)
 [![Reviewed by Hound](https://img.shields.io/badge/Reviewed_by-Hound-8E64B0.svg)](https://houndci.com)
 
+-- 
+
+Official Package List Validator for [Swift Package Index](https://swiftpackageindex.com)
+
+## About 
+
+Before each package is added to Swift Package Index, the package list must verified for correctness. These verifications come in two forms: the overall list and each package.
+
+As far as the overall list, it must:
+
+* Contain no duplicates 
+* Sorted in alphabetical order
+* Correct url format of each package (i.e.  end in _.git_)
+
+For each package to valid, it must:
+
+* Have a valid and accessible (i.e. via public repo) `Package.swift` file
+* Contains one valid product (library or executable)
+
+This application is useful for those, who are interested contributing their own package to the Swift Package Index or wish to contribute to this project.
+
+## Installation
+
+There are two methods to run this application:
+
+* run remotely via swift-sh and curl
+* run locally via mint installation
+
+### Remote via Swift-Sh
+
+### Locally via Mint Installation
+
+## Usage
+
+Once you are able to run the application there are three subcommands available:
+
+* **mine** - verify the Swift package in the directory specified
+* **all** - verify all the Swift packages in the `packages.json` specified
+* **diff** - verify only Swift packages in the `packages.json` specified which are not contained in the master `packages.json`
+
+## Built Using
+
+* PromiseKit
+* Swift Argument Parser
+
+## Authros 
+
+* leo
+* dave
+
 # DESCRIPTION HERE
 
 [Documentation Here](/Documentation/Reference/README.md)
