@@ -17,7 +17,7 @@
 [![Code Climate issues](https://img.shields.io/codeclimate/issues/SwiftPackageIndex/PackageListValidator)](https://codeclimate.com/github/SwiftPackageIndex/PackageListValidator)
 [![Reviewed by Hound](https://img.shields.io/badge/Reviewed_by-Hound-8E64B0.svg)](https://houndci.com)
 
--- 
+--- 
 
 Official Package List Validator for [Swift Package Index](https://swiftpackageindex.com)
 
