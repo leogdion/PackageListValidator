@@ -7,6 +7,12 @@ public struct TemporaryDirDataStorage: TemporaryDataStorage
 ```
 
 ## Methods
+### `init()`
+
+```swift
+public init()
+```
+
 ### `directoryUrl(forSavingData:)`
 
 ```swift

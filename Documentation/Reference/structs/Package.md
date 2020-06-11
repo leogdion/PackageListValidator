@@ -6,7 +6,7 @@
 public struct Package: Codable
 ```
 
-> Simple Package structure from package dump
+Simple Package structure from package dump
 
 ## Properties
 ### `name`

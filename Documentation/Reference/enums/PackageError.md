@@ -6,7 +6,7 @@
 public enum PackageError: Error
 ```
 
-> List of possible errors for each package
+List of possible errors for each package
 
 ## Cases
 ### `noResult`

@@ -1,6 +1,12 @@
 import Foundation
 
 public struct PackageListJsonURLParser: PackageListJsonURLParserProtocol {
+  public let fileExists: (String) -> Bool
+
+  public init(fileExists: @escaping (String) -> Bool = FileManager.default.fileExists) {
+    self.fileExists = fileExists
+  }
+
   /**
    Based on the directories passed and command line arguments, find the `packages.json` url.
    - Parameter directoryURLs: directory url to search for `packages.json` file
@@ -11,6 +17,6 @@ public struct PackageListJsonURLParser: PackageListJsonURLParserProtocol {
       return url
     }
     let possiblePackageURLs = directoryURLs.map { $0.appendingPathComponent("packages.json") }
-    return possiblePackageURLs.first(where: { FileManager.default.fileExists(atPath: $0.path) })
+    return possiblePackageURLs.first(where: { self.fileExists($0.path) })
   }
 }

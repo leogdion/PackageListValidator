@@ -7,6 +7,12 @@ public struct UniqueListValidator: ListValidator
 ```
 
 ## Methods
+### `init()`
+
+```swift
+public init()
+```
+
 ### `invalidUrls(fromUrls:)`
 
 ```swift

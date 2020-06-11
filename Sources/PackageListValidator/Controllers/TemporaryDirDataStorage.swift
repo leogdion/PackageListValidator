@@ -1,6 +1,8 @@
 import Foundation
 
 public struct TemporaryDirDataStorage: TemporaryDataStorage {
+  public init() {}
+
   public func directoryUrl(forSavingData data: Data) throws -> URL {
     let temporaryDirectoryURL: URL
     temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())

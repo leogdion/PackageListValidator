@@ -7,7 +7,7 @@ import PackageListValidator
     func testDefaultBranchName() {
       let branch = UUID().uuidString
 
-      let session = MockSession(result: .success(GitHubRepo(defaultBranch: branch)))
+      let session = MockSession(result: .success(GitHubRepo(defaultBranch: branch)), onURL: nil)
       let repoName = UUID().uuidString
       let owner = UUID().uuidString
       let token = UUID().uuidString
@@ -27,7 +27,7 @@ import PackageListValidator
 
     func testPassedError() {
       let error = MockError(value: UUID())
-      let session = MockSession<GitHubRepo>(result: .failure(error))
+      let session = MockSession<GitHubRepo>(result: .failure(error), onURL: nil)
       let repoName = UUID().uuidString
       let owner = UUID().uuidString
       let token = UUID().uuidString
@@ -47,7 +47,7 @@ import PackageListValidator
     func testMaster() {
       let branch = UUID().uuidString
 
-      let session = MockSession(result: .success(GitHubRepo(defaultBranch: branch)))
+      let session = MockSession(result: .success(GitHubRepo(defaultBranch: branch)), onURL: nil)
       let repoName = UUID().uuidString
       let owner = UUID().uuidString
       let query = GitHubDefaultBranchQuery(session: session, decoder: JSONDecoder())
@@ -64,7 +64,7 @@ import PackageListValidator
     }
 
     func testEmpty() {
-      let session = MockSession<GitHubRepo>(result: nil)
+      let session = MockSession<GitHubRepo>(result: nil, onURL: nil)
       let repoName = UUID().uuidString
       let owner = UUID().uuidString
       let token = UUID().uuidString

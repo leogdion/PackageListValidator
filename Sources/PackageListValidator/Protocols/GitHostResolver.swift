@@ -1,6 +1,6 @@
 import Foundation
 import PromiseKit
 
-protocol GitHostResolver {
+public protocol GitHostResolver {
   func packageUrl(for gitUrl: URL) -> Promise<URL>
 }

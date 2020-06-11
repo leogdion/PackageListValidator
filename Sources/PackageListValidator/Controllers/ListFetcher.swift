@@ -5,7 +5,11 @@ import Foundation
 #endif
 
 public struct ListFetcher: ListFetcherProtocol {
-  let listURL: URL
+  public let listURL: URL
+  public init(listURL: URL) {
+    self.listURL = listURL
+  }
+
   public func listWithSession<SessionType: Session>(_ session: SessionType, usingDecoder decoder: JSONDecoder, _ completed: @escaping (Result<[URL], Error>) -> Void) {
     let request = session.request(withURL: listURL)
     session.begin(request: request) { data, _, error in

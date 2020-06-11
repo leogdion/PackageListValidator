@@ -7,8 +7,18 @@ import PromiseKit
 
 public struct TemporaryPackageDownloader: PackageDownloader {
   let branchQuery: DefaultBranchQuery
-  let urlFetcher: PackageUrlFetcherProtocol = PackageUrlFetcher()
-  let tempDataStorage: TemporaryDataStorage = TemporaryDirDataStorage()
+  let urlFetcher: PackageUrlFetcherProtocol
+  let tempDataStorage: TemporaryDataStorage
+  let delay: TimeInterval
+
+  public init(branchQuery: DefaultBranchQuery,
+              urlFetcher: PackageUrlFetcherProtocol = PackageUrlFetcher(),
+              tempDataStorage: TemporaryDataStorage = TemporaryDirDataStorage(), delay: TimeInterval = 10.0) {
+    self.branchQuery = branchQuery
+    self.urlFetcher = urlFetcher
+    self.tempDataStorage = tempDataStorage
+    self.delay = delay
+  }
 
   public func download<SessionType: Session>(_ packageSwiftURL: URL, withSession session: SessionType) -> Promise<URL> {
     urlFetcher.getPackageSwiftURL(for: packageSwiftURL, resolvingWith: branchQuery).then { url in
@@ -24,7 +34,8 @@ public struct TemporaryPackageDownloader: PackageDownloader {
         resolver.resolve(result)
       }
     }.then { url in
-      after(seconds: 10.0).map {
+
+      after(seconds: self.delay).map {
         url
       }
     }

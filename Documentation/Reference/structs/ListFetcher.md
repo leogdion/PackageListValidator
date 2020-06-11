@@ -6,7 +6,20 @@
 public struct ListFetcher: ListFetcherProtocol
 ```
 
+## Properties
+### `listURL`
+
+```swift
+public let listURL: URL
+```
+
 ## Methods
+### `init(listURL:)`
+
+```swift
+public init(listURL: URL)
+```
+
 ### `listWithSession(_:usingDecoder:_:)`
 
 ```swift

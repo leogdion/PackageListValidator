@@ -3,8 +3,10 @@ import PackageListValidator
 
 struct MockSession<Success: Encodable>: Session {
   let result: Result<Success, Error>?
+  let onURL: ((URL) -> Void)?
   func request(withURL url: URL) -> MockRequest {
-    MockRequest(url: url)
+    onURL?(url)
+    return MockRequest(url: url)
   }
 
   func begin(request _: MockRequest, _ completionHandler: @escaping (Data?, MockResponse?, Error?) -> Void) -> Task {
