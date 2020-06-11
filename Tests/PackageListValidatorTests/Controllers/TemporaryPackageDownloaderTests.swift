@@ -28,7 +28,7 @@ import PackageListValidator
       let sourceURL = URL.fileRandom()
       let resultURL = URL.fileRandom()
       let expSession = expectation(description: "session")
-      let mockSession = MockSession(result: .success(resultURL)) {
+      let mockSession = MockSession(result: .success([resultURL])) {
         XCTAssertEqual(fetchedURL, $0)
         expSession.fulfill()
       }
@@ -51,7 +51,6 @@ import PackageListValidator
       waitForExpectations(timeout: 1.0) { error in
         XCTAssertNil(error)
       }
-      // downloader.download(<#T##packageSwiftURL: URL##URL#>, withSession: <#T##Session#>)
     }
   }
 #endif
