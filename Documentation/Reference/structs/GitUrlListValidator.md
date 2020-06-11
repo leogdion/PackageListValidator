@@ -6,7 +6,7 @@
 public struct GitUrlListValidator: ListValidator
 ```
 
-Verifies that each URL is a valid git repository.
+> Verifies that each URL is a valid git repository.
 
 ## Methods
 ### `init()`
@@ -21,9 +21,9 @@ public init()
 public func invalidUrls(fromUrls urls: [URL]) -> [URL]
 ```
 
-Verifies that all URLs are valid git repositories.
-- Parameter urls: The urls to verify.
-- Returns: The urls which are invalid.
+> Verifies that all URLs are valid git repositories.
+> - Parameter urls: The urls to verify.
+> - Returns: The urls which are invalid.
 
 #### Parameters
 

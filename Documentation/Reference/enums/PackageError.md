@@ -6,7 +6,7 @@
 public enum PackageError: Error
 ```
 
-List of possible errors for each package
+> List of possible errors for each package
 
 ## Cases
 ### `noResult`
@@ -15,7 +15,7 @@ List of possible errors for each package
 case noResult
 ```
 
-No Result Returned From Any Call
+> No Result Returned From Any Call
 
 ### `invalidURL(_:)`
 
@@ -23,7 +23,7 @@ No Result Returned From Any Call
 case invalidURL(URL)
 ```
 
-The URL listed is invalid for a repository.
+> The URL listed is invalid for a repository.
 
 ### `unsupportedHost(_:)`
 
@@ -31,7 +31,7 @@ The URL listed is invalid for a repository.
 case unsupportedHost(String)
 ```
 
-The git host is not supported.
+> The git host is not supported.
 
 ### `badDump(_:)`
 
@@ -39,7 +39,7 @@ The git host is not supported.
 case badDump(String?)
 ```
 
-SPM cannot decipher the `Package.swift` file.
+> SPM cannot decipher the `Package.swift` file.
 
 ### `decodingError(_:)`
 
@@ -47,7 +47,7 @@ SPM cannot decipher the `Package.swift` file.
 case decodingError(Error)
 ```
 
-Could not decode the result the pacakge dump.
+> Could not decode the result the pacakge dump.
 
 ### `missingProducts`
 
@@ -55,7 +55,7 @@ Could not decode the result the pacakge dump.
 case missingProducts
 ```
 
-No product listed.
+> No product listed.
 
 ### `dumpTimeout`
 
@@ -63,7 +63,7 @@ No product listed.
 case dumpTimeout
 ```
 
-The `dump-package` process timed out.
+> The `dump-package` process timed out.
 
 ## Properties
 ### `friendlyName`

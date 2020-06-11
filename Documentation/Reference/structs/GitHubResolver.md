@@ -6,7 +6,7 @@
 public struct GitHubResolver: GitHostResolver
 ```
 
-Based on the URL, resolves the URL to download the `Package.swift`.
+> Based on the URL, resolves the URL to download the `Package.swift`.
 
 ## Properties
 ### `branchQuery`
@@ -34,9 +34,9 @@ public init(branchQuery: DefaultBranchQuery, rawUrlBuilder: RawUrlBuilder = GitH
 public func packageUrl(for gitURL: URL) -> Promise<URL>
 ```
 
-Returns a Promise of the downloadable URL for the `Package.swift` file.
-- Parameter gitUrl: The URL to the git repository.
-- Returns: A Promise of the URL
+> Returns a Promise of the downloadable URL for the `Package.swift` file.
+> - Parameter gitUrl: The URL to the git repository.
+> - Returns: A Promise of the URL
 
 #### Parameters
 
