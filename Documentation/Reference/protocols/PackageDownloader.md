@@ -10,5 +10,5 @@ public protocol PackageDownloader
 ### `download(_:withSession:)`
 
 ```swift
-func download(_ packageSwiftURL: URL, withSession session: URLSession) -> Promise<URL>
+func download<SessionType: Session>(_ packageSwiftURL: URL, withSession session: SessionType) -> Promise<URL>
 ```

@@ -7,6 +7,12 @@ public struct PackageUrlFetcher: PackageUrlFetcherProtocol
 ```
 
 ## Methods
+### `init()`
+
+```swift
+public init()
+```
+
 ### `getPackageSwiftURL(for:resolvingWith:)`
 
 ```swift

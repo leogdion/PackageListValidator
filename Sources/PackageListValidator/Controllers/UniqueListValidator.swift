@@ -9,6 +9,8 @@ public struct UniqueListValidator: ListValidator {
   public static let errorDescription = "Duplicate Urls."
   public static let successDescription = "No Duplicate Urls."
 
+  public init() {}
+
   public func invalidUrls(fromUrls urls: [URL]) -> [URL] {
     [URL](Dictionary(grouping: urls.enumerated()) {
       URL(string: $0.element.absoluteString.lowercased())!

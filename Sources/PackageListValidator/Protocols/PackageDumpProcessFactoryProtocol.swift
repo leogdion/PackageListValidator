@@ -1,5 +1,8 @@
 import Foundation
 
+/**
+ Creates a `Process` for dump the package metadata.
+ */
 public protocol PackageDumpProcessFactoryProtocol {
   /**
    Creates a `Process` for dump the package metadata.

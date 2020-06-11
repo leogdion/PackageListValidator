@@ -6,7 +6,20 @@
 public struct PackageListJsonURLParser: PackageListJsonURLParserProtocol
 ```
 
+## Properties
+### `fileExists`
+
+```swift
+public let fileExists: (String) -> Bool
+```
+
 ## Methods
+### `init(fileExists:)`
+
+```swift
+public init(fileExists: @escaping (String) -> Bool = FileManager.default.fileExists)
+```
+
 ### `url(packagesFromDirectories:andPath:)`
 
 ```swift

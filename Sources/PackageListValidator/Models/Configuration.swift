@@ -9,6 +9,9 @@ public struct Configuration {
 
   public let timeoutIntervalForRequest = 3000.0
   public let timeoutIntervalForResource = 6000.0
+
+  public let gitHubToken = ProcessInfo.processInfo.environment["GITHUB_API_TOKEN"]
+  public let gitHubUserName = ProcessInfo.processInfo.environment["GITHUB_API_USERNAME"]
 //
 //  // base url for github raw files
 //  public let rawURLComponentsBase = URLComponents(string: "https://raw.githubusercontent.com")!

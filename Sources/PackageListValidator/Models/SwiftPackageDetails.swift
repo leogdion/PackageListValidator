@@ -1,8 +1,8 @@
-struct SwiftPackageDetails {
-  let firstProduct: Product
-  let package: Package
+public struct SwiftPackageDetails {
+  public let firstProduct: Product
+  public let package: Package
 
-  init(package: Package) throws {
+  public init(package: Package) throws {
     guard let firstProduct = package.products.first else {
       throw PackageError.missingProducts
     }

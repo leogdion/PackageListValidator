@@ -9,5 +9,9 @@ public extension PackageFilterProtocol
 ### `filterRepos(_:withSession:usingDecoder:)`
 
 ```swift
-func filterRepos(_ packageUrls: [URL], withSession session: URLSession, usingDecoder decoder: JSONDecoder) -> Promise<[URL]>
+func filterRepos<SessionType: Session>(
+  _ packageUrls: [URL],
+  withSession session: SessionType,
+  usingDecoder decoder: JSONDecoder
+) -> Promise<[URL]>
 ```

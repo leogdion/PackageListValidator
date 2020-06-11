@@ -7,17 +7,26 @@ import PromiseKit
 
 public struct TemporaryPackageDownloader: PackageDownloader {
   let branchQuery: DefaultBranchQuery
-  let urlFetcher: PackageUrlFetcherProtocol = PackageUrlFetcher()
-  let tempDataStorage: TemporaryDataStorage = TemporaryDirDataStorage()
+  let urlFetcher: PackageUrlFetcherProtocol
+  let tempDataStorage: TemporaryDataStorage
+  let delay: TimeInterval
 
-  public func download(_ packageSwiftURL: URL, withSession session: URLSession) -> Promise<URL> {
+  public init(branchQuery: DefaultBranchQuery,
+              urlFetcher: PackageUrlFetcherProtocol = PackageUrlFetcher(),
+              tempDataStorage: TemporaryDataStorage = TemporaryDirDataStorage(), delay: TimeInterval = 10.0) {
+    self.branchQuery = branchQuery
+    self.urlFetcher = urlFetcher
+    self.tempDataStorage = tempDataStorage
+    self.delay = delay
+  }
+
+  public func download<SessionType: Session>(_ packageSwiftURL: URL, withSession session: SessionType) -> Promise<URL> {
     urlFetcher.getPackageSwiftURL(for: packageSwiftURL, resolvingWith: branchQuery).then { url in
       Promise<Data> { resolver in
-        // debugPrint("Downloading \(url)...")
-        session.dataTask(with: url) {
+        let request = session.request(withURL: url)
+        session.begin(request: request) {
           resolver.resolve($2, $0)
-          // debugPrint("Downloaded \(url)...")
-        }.resume()
+        }
       }
     }.then { data in
       Promise<URL> { resolver in
@@ -25,7 +34,8 @@ public struct TemporaryPackageDownloader: PackageDownloader {
         resolver.resolve(result)
       }
     }.then { url in
-      after(seconds: 10.0).map {
+
+      after(seconds: self.delay).map {
         url
       }
     }

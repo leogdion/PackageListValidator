@@ -19,6 +19,18 @@ public let timeoutIntervalForRequest = 3000.0
 public let timeoutIntervalForResource = 6000.0
 ```
 
+### `gitHubToken`
+
+```swift
+public let gitHubToken = ProcessInfo.processInfo.environment["GITHUB_API_TOKEN"]
+```
+
+### `gitHubUserName`
+
+```swift
+public let gitHubUserName = ProcessInfo.processInfo.environment["GITHUB_API_USERNAME"]
+```
+
 ### `httpMaximumConnectionsPerHost`
 
 ```swift

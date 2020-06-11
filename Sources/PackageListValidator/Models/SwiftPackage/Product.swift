@@ -1,6 +1,10 @@
 /**
  Simple Product structure from package dump
  */
-struct Product: Codable {
-  let name: String
+public struct Product: Codable {
+  public let name: String
+
+  public init(name: String) {
+    self.name = name
+  }
 }
