@@ -4,6 +4,8 @@ public struct SortedListValidator: ListValidator {
   public static let errorDescription = "Urls not sorted."
   public static let successDescription = "All urls are sorted."
 
+  public init() {}
+
   public func invalidUrls(fromUrls urls: [URL]) -> [URL] {
     let sortedUrls = urls.sorted {
       $0.absoluteString.lowercased() < $1.absoluteString.lowercased()

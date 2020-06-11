@@ -3,7 +3,7 @@ import Foundation
 /**
  List of possible errors for each package
  */
-enum PackageError: Error {
+public enum PackageError: Error {
   case noResult
   case invalidURL(URL)
   case unsupportedHost(String)
@@ -13,7 +13,7 @@ enum PackageError: Error {
   case missingProducts
   case dumpTimeout
 
-  var friendlyName: String {
+  public var friendlyName: String {
     switch self {
     case .noResult:
       return "No Result"

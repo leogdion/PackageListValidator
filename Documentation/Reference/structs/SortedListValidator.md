@@ -7,6 +7,12 @@ public struct SortedListValidator: ListValidator
 ```
 
 ## Methods
+### `init()`
+
+```swift
+public init()
+```
+
 ### `invalidUrls(fromUrls:)`
 
 ```swift

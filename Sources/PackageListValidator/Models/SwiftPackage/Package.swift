@@ -1,7 +1,12 @@
 /**
  Simple Package structure from package dump
  */
-struct Package: Codable {
-  let name: String
-  let products: [Product]
+public struct Package: Codable {
+  public let name: String
+  public let products: [Product]
+
+  public init(name: String, products: [Product]) {
+    self.name = name
+    self.products = products
+  }
 }
