@@ -221,7 +221,7 @@ Therefore, make sure your package:
 
 ### Code Documentation
 
-[Documentation Here](/Documentation/Reference/README.md)
+[Documentation Here](/Documentation/Reference)
 
 ## Built Using
 
