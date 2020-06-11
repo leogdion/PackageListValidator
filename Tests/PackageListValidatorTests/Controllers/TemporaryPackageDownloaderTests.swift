@@ -43,6 +43,9 @@ import PackageListValidator
       downloader.download(sourceURL, withSession: mockSession).done {
         XCTAssertEqual($0, storageURL)
         expDownload.fulfill()
+      }.catch {
+        XCTAssertNil($0)
+        expDownload.fulfill()
       }
 
       waitForExpectations(timeout: 1.0) { error in

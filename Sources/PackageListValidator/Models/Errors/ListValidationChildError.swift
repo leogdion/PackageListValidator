@@ -1,11 +1,11 @@
 import Foundation
 
-struct ListValidationChildError: LocalizedError {
-  let description: String
-  let urls: [URL]
+public struct ListValidationChildError: LocalizedError {
+  public let description: String
+  public let urls: [URL]
 
-  init?(description: String, urls: [URL]) {
-    guard urls.count > 1 else {
+  public init?(description: String, urls: [URL]) {
+    guard urls.count >= 1 else {
       return nil
     }
 

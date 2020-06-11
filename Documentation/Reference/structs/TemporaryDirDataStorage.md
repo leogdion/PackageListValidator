@@ -6,11 +6,18 @@
 public struct TemporaryDirDataStorage: TemporaryDataStorage
 ```
 
-## Methods
-### `init()`
+## Properties
+### `temporaryDirectoryURL`
 
 ```swift
-public init()
+public let temporaryDirectoryURL: () -> (URL)
+```
+
+## Methods
+### `init(temporaryDirectoryURL:)`
+
+```swift
+public init(temporaryDirectoryURL: (() -> (URL))? = nil)
 ```
 
 ### `directoryUrl(forSavingData:)`
