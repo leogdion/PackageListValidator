@@ -1,12 +1,6 @@
 import PackageListValidator
 #if !os(watchOS)
   import XCTest
-  class MockPipe: Pipe {
-    let value = UUID()
-    func assertEquals(_ pipe: Any?) {
-      XCTAssertEqual(value, (pipe as? MockPipe)?.value)
-    }
-  }
 
   final class PackageDumpProcessFactoryTests: XCTestCase {
     func testDumpPackageProcessAt() {

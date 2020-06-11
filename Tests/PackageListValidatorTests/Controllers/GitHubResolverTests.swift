@@ -1,14 +1,6 @@
 import PackageListValidator
 #if !os(watchOS)
   import XCTest
-  struct MockURLBuilder: RawUrlBuilder {
-    let resultURL: URL
-    let onURL: ((RepoSpecification, String) -> Void)?
-    func url(basedOn specifications: RepoSpecification, forFileName fileName: String) -> URL {
-      onURL?(specifications, fileName)
-      return resultURL
-    }
-  }
 
   final class GitHubResolverTests: XCTestCase {
     func testPackageURL() {

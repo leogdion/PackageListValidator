@@ -2,23 +2,6 @@ import PackageListValidator
 #if !os(watchOS)
   import PromiseKit
   import XCTest
-  struct MockURLFetcher: PackageUrlFetcherProtocol {
-    let resultURL: URL
-    let onBranch: ((String) -> Void)?
-    func getPackageSwiftURL(for _: URL, resolvingWith branchQuery: DefaultBranchQuery) -> Promise<URL> {
-      branchQuery.defaultBranchName(forRepoName: UUID().uuidString, withOwner: UUID().uuidString).map { branchName in
-        self.onBranch?(branchName)
-        return self.resultURL
-      }
-    }
-  }
-
-  struct MockTempDataStorage: TemporaryDataStorage {
-    let resultURL: URL
-    func directoryUrl(forSavingData _: Data) throws -> URL {
-      resultURL
-    }
-  }
 
   final class TemporaryPackageDownloaderTests: XCTestCase {
     func testDownload() {
