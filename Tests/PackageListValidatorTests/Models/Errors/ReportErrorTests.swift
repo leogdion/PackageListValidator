@@ -29,7 +29,7 @@ import PackageListValidator
       case .some(.dumpTimeout):
         XCTAssert(true)
       default:
-        XCTFail()
+        XCTFail("Invalid Error")
       }
       XCTAssertNil(report?.errors[goodUrl])
     }

@@ -7,7 +7,7 @@ struct MockError<Value: Equatable>: Error {
 extension MockError {
   func assertEqual(_ other: Error?) {
     guard let mockError = other as? Self else {
-      XCTFail("")
+      XCTFail("Not a valid error types")
       return
     }
 

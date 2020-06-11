@@ -12,7 +12,7 @@ import PackageListValidator
 
       let url = builder.url(basedOn: specs, forFileName: fileName)
       guard let actual = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
-        XCTFail()
+        XCTFail("no url components")
         return
       }
       let pathComponents = actual.path.components(separatedBy: "/")

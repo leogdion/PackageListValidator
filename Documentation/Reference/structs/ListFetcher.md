@@ -23,5 +23,9 @@ public init(listURL: URL)
 ### `listWithSession(_:usingDecoder:_:)`
 
 ```swift
-public func listWithSession<SessionType: Session>(_ session: SessionType, usingDecoder decoder: JSONDecoder, _ completed: @escaping (Result<[URL], Error>) -> Void)
+public func listWithSession<SessionType: Session>(
+  _ session: SessionType,
+  usingDecoder decoder: JSONDecoder,
+  _ completed: @escaping (Result<[URL], Error>) -> Void
+)
 ```

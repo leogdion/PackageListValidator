@@ -19,14 +19,14 @@ import PackageListValidator
       } catch let caughtError as PackageError {
         error = caughtError
       } catch {
-        XCTFail()
+        XCTFail("Invalid Error")
         return
       }
       switch error {
       case .some(.missingProducts):
         XCTAssert(true)
       default:
-        XCTFail()
+        XCTFail("Invalid Error")
       }
     }
   }

@@ -21,7 +21,11 @@ import PackageListValidator
         expFetcher.fulfill()
       }
       let mockStorage = MockTempDataStorage(resultURL: storageURL)
-      let downloader = TemporaryPackageDownloader(branchQuery: JustBranchQuery(branchName: branch), urlFetcher: mockFetcher, tempDataStorage: mockStorage, delay: 0.0)
+      let downloader = TemporaryPackageDownloader(
+        branchQuery: JustBranchQuery(branchName: branch),
+        urlFetcher: mockFetcher,
+        tempDataStorage: mockStorage, delay: 0.0
+      )
       let expDownload = expectation(description: "download")
       downloader.download(sourceURL, withSession: mockSession).done {
         XCTAssertEqual($0, storageURL)

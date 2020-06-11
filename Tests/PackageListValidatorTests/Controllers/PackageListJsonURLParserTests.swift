@@ -4,7 +4,12 @@ import PackageListValidator
   final class PackageListJsonURLParserTests: XCTestCase {
     func testUrl() {
       let urls = (0 ... 100).map { _ in URL.fileRandom() }
-      let exps = Dictionary(uniqueKeysWithValues: urls.map { ($0.appendingPathComponent("packages.json").path, expectation(description: $0.lastPathComponent)) })
+      let exps = Dictionary(
+        uniqueKeysWithValues:
+        urls.map {
+          ($0.appendingPathComponent("packages.json").path,
+           expectation(description: $0.lastPathComponent))
+      })
       let parser = PackageListJsonURLParser { (path) -> Bool in
         exps[path]!.fulfill()
         return false
@@ -18,7 +23,7 @@ import PackageListValidator
     func testUrlPath() {
       let urls = (0 ... 100).map { _ in URL.fileRandom() }
       let parser = PackageListJsonURLParser { (_) -> Bool in
-        XCTFail()
+        XCTFail("the parser shouldn't call this")
         return false
       }
       let pathURL = URL.fileRandom()

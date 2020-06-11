@@ -7,7 +7,7 @@ import PackageListValidator
       let url = URL.fileRandom()
       let string = UUID().uuidString
       let exp = expectation(description: "pacakge url")
-      fetcher.getPackageSwiftURL(for: url, resolvingWith: JustBranchQuery(branchName: string)).catch(only: PackageError.self) { error in
+      _ = fetcher.getPackageSwiftURL(for: url, resolvingWith: JustBranchQuery(branchName: string)).catch(only: PackageError.self) { error in
         switch error {
         case let .invalidURL(actual):
           XCTAssertEqual(actual, url)
@@ -26,7 +26,7 @@ import PackageListValidator
       let url = URL(string: "https://bitbucket.com")!
       let string = UUID().uuidString
       let exp = expectation(description: "pacakge url")
-      fetcher.getPackageSwiftURL(for: url, resolvingWith: JustBranchQuery(branchName: string)).catch(only: PackageError.self) { error in
+      _ = fetcher.getPackageSwiftURL(for: url, resolvingWith: JustBranchQuery(branchName: string)).catch(only: PackageError.self) { error in
         switch error {
         case let .unsupportedHost(actual):
           XCTAssertEqual(actual, "bitbucket.com")

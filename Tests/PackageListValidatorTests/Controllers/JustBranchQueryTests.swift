@@ -6,7 +6,7 @@ import PackageListValidator
       let expected = UUID().uuidString
       let query = JustBranchQuery(branchName: expected)
       let exp = expectation(description: "default branch called")
-      query.defaultBranchName(forRepoName: UUID().uuidString, withOwner: UUID().uuidString).done {
+      _ = query.defaultBranchName(forRepoName: UUID().uuidString, withOwner: UUID().uuidString).done {
         XCTAssertEqual($0, expected)
         exp.fulfill()
       }

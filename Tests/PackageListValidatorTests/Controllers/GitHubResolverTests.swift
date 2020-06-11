@@ -19,7 +19,7 @@ import PackageListValidator
       })
       let resolver = GitHubResolver(branchQuery: JustBranchQuery(branchName: branch), rawUrlBuilder: builder)
       let expPackageURL = expectation(description: "package")
-      resolver.packageUrl(for: gitURL).done { url in
+      _ = resolver.packageUrl(for: gitURL).done { url in
         XCTAssertEqual(url, resultURL)
         expPackageURL.fulfill()
       }

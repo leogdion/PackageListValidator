@@ -10,7 +10,11 @@ import PackageListValidator
       let fetcher = MockListFetcher(result: .success(removing))
       let filter = PackageFilter(type: .diffWith(fetcher))
       let exp = expectation(description: "filtered")
-      filter.filterRepos((expected + removing).shuffled(), withSession: MockSession<UUID>(result: nil, onURL: nil), usingDecoder: JSONDecoder()) { result in
+      filter.filterRepos(
+        (expected + removing).shuffled(),
+        withSession: MockSession<UUID>(result: nil, onURL: nil),
+        usingDecoder: JSONDecoder()
+      ) { result in
         let actual = (try? result.get()).map { Set($0) }
         XCTAssertEqual(Set(expected), actual)
         exp.fulfill()

@@ -10,7 +10,11 @@ public struct ListFetcher: ListFetcherProtocol {
     self.listURL = listURL
   }
 
-  public func listWithSession<SessionType: Session>(_ session: SessionType, usingDecoder decoder: JSONDecoder, _ completed: @escaping (Result<[URL], Error>) -> Void) {
+  public func listWithSession<SessionType: Session>(
+    _ session: SessionType,
+    usingDecoder decoder: JSONDecoder,
+    _ completed: @escaping (Result<[URL], Error>) -> Void
+  ) {
     let request = session.request(withURL: listURL)
     session.begin(request: request) { data, _, error in
       if let error = error {

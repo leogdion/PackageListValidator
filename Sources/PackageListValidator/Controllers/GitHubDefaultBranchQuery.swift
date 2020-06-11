@@ -11,7 +11,6 @@ public struct GitHubRepo: Codable {
 
   public let defaultBranch: String
 
-  // swiftlint:disable:next nesting
   enum CodingKeys: String, CodingKey {
     case defaultBranch = "default_branch"
   }
@@ -34,7 +33,6 @@ public struct GitHubDefaultBranchQuery<SessionType: Session>: DefaultBranchQuery
   public func defaultBranchName(forRepoName repo: String, withOwner owner: String, _ completed: @escaping ((Result<String, Error>) -> Void)) {
     let url = apiBaseURL.appendingPathComponent(owner).appendingPathComponent(repo)
     var urlRequest = session.request(withURL: url)
-    #warning("use the configuration rather environment")
     if let token = gitHubToken,
       let username = gitHubUserName {
       let userPasswordString = "\(username):\(token)"
