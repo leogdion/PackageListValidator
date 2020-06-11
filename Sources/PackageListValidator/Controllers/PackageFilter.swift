@@ -4,6 +4,10 @@ import PromiseKit
 public struct PackageFilter: PackageFilterProtocol {
   public let type: PackageFilterType
 
+  public init(type: PackageFilterType) {
+    self.type = type
+  }
+
   public func filterRepos<SessionType: Session>(
     _ packageUrls: [URL],
     withSession session: SessionType,

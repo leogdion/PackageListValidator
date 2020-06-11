@@ -7,6 +7,12 @@ public struct GitUrlListValidator: ListValidator
 ```
 
 ## Methods
+### `init()`
+
+```swift
+public init()
+```
+
 ### `invalidUrls(fromUrls:)`
 
 ```swift

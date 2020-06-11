@@ -14,6 +14,12 @@ public let type: PackageFilterType
 ```
 
 ## Methods
+### `init(type:)`
+
+```swift
+public init(type: PackageFilterType)
+```
+
 ### `filterRepos(_:withSession:usingDecoder:_:)`
 
 ```swift

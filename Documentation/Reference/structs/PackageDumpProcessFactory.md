@@ -7,6 +7,12 @@ public struct PackageDumpProcessFactory: PackageDumpProcessFactoryProtocol
 ```
 
 ## Methods
+### `init()`
+
+```swift
+public init()
+```
+
 ### `dumpPackageProcessAt(_:outputTo:errorsTo:)`
 
 ```swift

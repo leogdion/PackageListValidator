@@ -7,7 +7,7 @@ public protocol ListValidator {
   func invalidUrls(fromUrls urls: [URL]) -> [URL]
 }
 
-extension ListValidator {
+public extension ListValidator {
   func validateUrls(_ urls: [URL]) -> ListValidationChildError? {
     ListValidationChildError(description: Self.errorDescription, urls: invalidUrls(fromUrls: urls))
   }

@@ -1,6 +1,7 @@
 import Foundation
 
 public struct PackageDumpProcessFactory: PackageDumpProcessFactoryProtocol {
+  public init() {}
   public func dumpPackageProcessAt(_ packageDirectoryURL: URL, outputTo pipe: Pipe, errorsTo errorPipe: Pipe) -> Process {
     let process = Process()
     if #available(OSX 10.13, *) {
