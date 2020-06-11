@@ -4,18 +4,9 @@ import Foundation
   import FoundationNetworking
 #endif
 
-public struct GitHubRepo: Codable {
-  public init(defaultBranch: String) {
-    self.defaultBranch = defaultBranch
-  }
-
-  public let defaultBranch: String
-
-  enum CodingKeys: String, CodingKey {
-    case defaultBranch = "default_branch"
-  }
-}
-
+/**
+ Returns the default branch for the repository by calling the GitHub API.
+ */
 public struct GitHubDefaultBranchQuery<SessionType: Session>: DefaultBranchQuery {
   public init(session: SessionType, decoder: JSONDecoder, baseURL: URL? = nil, gitHubUserName: String? = nil, gitHubToken _: String? = nil) {
     self.decoder = decoder
@@ -30,6 +21,13 @@ public struct GitHubDefaultBranchQuery<SessionType: Session>: DefaultBranchQuery
   public let session: SessionType
   public let gitHubToken: String?
   public let gitHubUserName: String?
+
+  /**
+   Returns the default branch for the repository from the GitHub API.
+    - Parameter repo: Repository Name
+   - Parameter owner: Repositry Owner
+   - Parameter completed: Callback for when a result is received.
+   */
   public func defaultBranchName(forRepoName repo: String, withOwner owner: String, _ completed: @escaping ((Result<String, Error>) -> Void)) {
     let url = apiBaseURL.appendingPathComponent(owner).appendingPathComponent(repo)
     var urlRequest = session.request(withURL: url)

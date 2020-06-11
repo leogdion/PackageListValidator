@@ -5,9 +5,19 @@ import PromiseKit
   import FoundationNetworking
 #endif
 
+/**
+ Returns the a hard-coded branch for the repository.
+ */
 public struct JustBranchQuery: DefaultBranchQuery {
   public let branchName: String
   public init(branchName: String) { self.branchName = branchName }
+
+  /**
+   Returns the hard-coded branch for the repository.
+    - Parameter repo: Repository Name
+   - Parameter owner: Repositry Owner
+   - Parameter completed: Callback for when a result is received.
+   */
   public func defaultBranchName(forRepoName _: String, withOwner _: String, _ completed: @escaping ((Result<String, Error>) -> Void)) {
     completed(.success(branchName))
   }

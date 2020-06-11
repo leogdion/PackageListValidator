@@ -18,3 +18,9 @@ public init()
 ```swift
 public func invalidUrls(fromUrls urls: [URL]) -> [URL]
 ```
+
+#### Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| urls | The urls to verify. |

@@ -4,13 +4,33 @@ import Foundation
  List of possible errors for each package
  */
 public enum PackageError: Error {
+  /**
+   No Result Returned From Any Call
+   */
   case noResult
+  /**
+    The URL listed is invalid for a repository.
+   */
   case invalidURL(URL)
+  /**
+    The git host is not supported.
+   */
   case unsupportedHost(String)
-  case readError(Error?)
+  /**
+    SPM cannot decipher the `Package.swift` file.
+   */
   case badDump(String?)
+  /**
+    Could not decode the result the pacakge dump.
+   */
   case decodingError(Error)
+  /**
+   No product listed.
+   */
   case missingProducts
+  /**
+   The `dump-package` process timed out.
+   */
   case dumpTimeout
 
   public var friendlyName: String {
@@ -21,8 +41,6 @@ public enum PackageError: Error {
       return "Invalid URL"
     case .unsupportedHost:
       return "Unsupported Host"
-    case .readError:
-      return "Download Failure"
     case .badDump:
       return "Invalid Dump"
     case .decodingError:

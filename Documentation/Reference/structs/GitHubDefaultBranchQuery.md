@@ -6,6 +6,8 @@
 public struct GitHubDefaultBranchQuery<SessionType: Session>: DefaultBranchQuery
 ```
 
+Returns the default branch for the repository by calling the GitHub API.
+
 ## Properties
 ### `apiBaseURL`
 
@@ -49,3 +51,16 @@ public init(session: SessionType, decoder: JSONDecoder, baseURL: URL? = nil, git
 ```swift
 public func defaultBranchName(forRepoName repo: String, withOwner owner: String, _ completed: @escaping ((Result<String, Error>) -> Void))
 ```
+
+Returns the default branch for the repository from the GitHub API.
+ - Parameter repo: Repository Name
+- Parameter owner: Repositry Owner
+- Parameter completed: Callback for when a result is received.
+
+#### Parameters
+
+| Name | Description |
+| ---- | ----------- |
+| repo | Repository Name |
+| owner | Repositry Owner |
+| completed | Callback for when a result is received. |

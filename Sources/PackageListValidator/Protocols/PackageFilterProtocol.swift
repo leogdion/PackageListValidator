@@ -5,7 +5,17 @@ import PromiseKit
   import FoundationNetworking
 #endif
 
+/**
+ Filters the urls in an array based another list (i.e. master list).
+ */
 public protocol PackageFilterProtocol {
+  /**
+   Filters the urls in an array based another list (i.e. master list).
+   - Parameter packageUrls: The list to filter.
+   - Parameter session: The session to read the other list from.
+   - Parameter decoder: The JSONDecoder
+   - Parameter completed: The callback made when the result is received.
+   */
   func filterRepos<SessionType: Session>(
     _ packageUrls: [URL],
     withSession session: SessionType,

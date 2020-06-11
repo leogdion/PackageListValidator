@@ -6,6 +6,8 @@
 public protocol PackageDumpProcessFactoryProtocol
 ```
 
+Creates a `Process` for dump the package metadata.
+
 ## Methods
 ### `dumpPackageProcessAt(_:outputTo:errorsTo:)`
 
@@ -13,10 +15,10 @@ public protocol PackageDumpProcessFactoryProtocol
 func dumpPackageProcessAt(_ packageDirectoryURL: URL, outputTo pipe: Pipe, errorsTo errorPipe: Pipe) -> Process
 ```
 
-> Creates a `Process` for dump the package metadata.
-> - Parameter packageDirectoryURL: File URL to Package
-> - Parameter outputTo: standard output pipe
-> - Parameter errorsTo: error pipe
+Creates a `Process` for dump the package metadata.
+- Parameter packageDirectoryURL: File URL to Package
+- Parameter outputTo: standard output pipe
+- Parameter errorsTo: error pipe
 
 #### Parameters
 
