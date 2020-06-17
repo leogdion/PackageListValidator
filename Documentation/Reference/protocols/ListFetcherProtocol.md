@@ -6,7 +6,7 @@
 public protocol ListFetcherProtocol
 ```
 
-> Fetches an Array of repository URLs from a JSON file.
+Fetches an Array of repository URLs from a JSON file.
 
 ## Methods
 ### `listWithSession(_:usingDecoder:_:)`
@@ -19,10 +19,10 @@ func listWithSession<SessionType: Session>(
 )
 ```
 
-> Fetches an Array of repository URLs from a JSON file.
-> - Parameter session: The Session to build URL requests from.
-> - Parameter decoder: The JSONDecoder.
-> - Parameter completed: Callback for when the URLs are decoded.
+Fetches an Array of repository URLs from a JSON file.
+- Parameter session: The Session to build URL requests from.
+- Parameter decoder: The JSONDecoder.
+- Parameter completed: Callback for when the URLs are decoded.
 
 #### Parameters
 

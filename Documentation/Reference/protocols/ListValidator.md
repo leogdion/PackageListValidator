@@ -6,7 +6,7 @@
 public protocol ListValidator
 ```
 
-> Verifies that the list of the URLs as valid.
+Verifies that the list of the URLs as valid.
 
 ## Methods
 ### `invalidUrls(fromUrls:)`
@@ -15,9 +15,9 @@ public protocol ListValidator
 func invalidUrls(fromUrls urls: [URL]) -> [URL]
 ```
 
-> Verifies that the list is invalid.
-> - Parameter urls: The urls to verify.
-> - Returns: The urls which are invalid.
+Verifies that the list is invalid.
+- Parameter urls: The urls to verify.
+- Returns: The urls which are invalid.
 
 #### Parameters
 

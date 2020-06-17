@@ -6,7 +6,7 @@
 public struct Product: Codable
 ```
 
-> Simple Product structure from package dump
+Simple Product structure from package dump
 
 ## Properties
 ### `name`

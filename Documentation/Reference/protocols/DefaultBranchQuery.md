@@ -6,7 +6,7 @@
 public protocol DefaultBranchQuery
 ```
 
-> Returns the default branch for the repository.
+Returns the default branch for the repository.
 
 ## Methods
 ### `defaultBranchName(forRepoName:withOwner:_:)`
@@ -15,10 +15,10 @@ public protocol DefaultBranchQuery
 func defaultBranchName(forRepoName repo: String, withOwner owner: String, _ completed: @escaping ((Result<String, Error>) -> Void))
 ```
 
-> Returns the default branch for the repository.
->  - Parameter repo: Repository Name
-> - Parameter owner: Repositry Owner
-> - Parameter completed: Callback for when a result is received.
+Returns the default branch for the repository.
+ - Parameter repo: Repository Name
+- Parameter owner: Repositry Owner
+- Parameter completed: Callback for when a result is received.
 
 #### Parameters
 

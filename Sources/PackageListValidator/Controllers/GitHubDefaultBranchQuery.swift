@@ -39,9 +39,6 @@ public struct GitHubDefaultBranchQuery<SessionType: Session>: DefaultBranchQuery
         let authString = "Basic \(base64EncodedCredential)"
         urlRequest.addHeader(withValue: authString, forField: "Authorization")
       }
-    } else {
-      completed(.success("master"))
-      return
     }
     session.begin(request: urlRequest) { data, _, error in
       if let error = error {

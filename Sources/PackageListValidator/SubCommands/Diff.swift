@@ -16,7 +16,7 @@ public struct Diff: ParsableCommand {
   public init() {}
 
   public func run() throws {
-    let listRepoSpecs = RepoSpecification(repositoryName: "SwiftPackageIndex", userName: "MasterPackageList", branchName: "master")
+    let listRepoSpecs = RepoSpecification(repositoryName: "PackageList", userName: "SwiftPackageIndex", branchName: "main")
     let rawUrlResolver = GitHubRawUrlBuilder()
     let listUrl = rawUrlResolver.url(basedOn: listRepoSpecs, forFileName: "packages.json")
 

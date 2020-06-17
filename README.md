@@ -78,20 +78,6 @@ ARGUMENTS:
 OPTIONS:
   -h, --help              Show help information.
  ```
-
-### All - verifying all Swift Packages
-
-```
-OVERVIEW: Verify every package in the JSON file.
-USAGE: swiftpmls diff [<path>]
-
-ARGUMENTS:
-  <path>                  Path to the JSON file containing the repository list.
-                          (default: packages.json)
-
-OPTIONS:
-  -h, --help              Show help information.
- ```
  
 ### Diff - verifying new Swift Packages
 
