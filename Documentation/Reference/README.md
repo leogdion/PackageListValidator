@@ -37,7 +37,6 @@
 -   [PackageDumpProcessFactory](structs/PackageDumpProcessFactory.md)
 -   [PackageFilter](structs/PackageFilter.md)
 -   [PackageListJsonURLParser](structs/PackageListJsonURLParser.md)
--   [PackageListValidator](structs/PackageListValidator.md)
 -   [PackageUrlFetcher](structs/PackageUrlFetcher.md)
 -   [ProcessPackageParser](structs/ProcessPackageParser.md)
 -   [Product](structs/Product.md)
@@ -50,6 +49,7 @@
 -   [TemporaryDirDataStorage](structs/TemporaryDirDataStorage.md)
 -   [TemporaryPackageDownloader](structs/TemporaryPackageDownloader.md)
 -   [UniqueListValidator](structs/UniqueListValidator.md)
+-   [Validate](structs/Validate.md)
 
 ## Enums
 

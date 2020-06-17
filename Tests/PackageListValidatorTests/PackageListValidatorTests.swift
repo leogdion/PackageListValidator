@@ -4,26 +4,26 @@ import XCTest
 final class PackageListValidatorTests: XCTestCase {
   func testExample() {
     do {
-      _ = try PackageListValidator.parseAsRoot(["mine"])
+      _ = try Validate.parseAsRoot(["mine"])
     } catch {
       XCTAssertNil(error)
     }
 
     do {
-      _ = try PackageListValidator.parseAsRoot(["all"])
+      _ = try Validate.parseAsRoot(["all"])
     } catch {
       XCTAssertNil(error)
     }
 
     do {
-      _ = try PackageListValidator.parseAsRoot(["diff"])
+      _ = try Validate.parseAsRoot(["diff"])
     } catch {
       XCTAssertNil(error)
     }
 
     let error: Error?
     do {
-      _ = try PackageListValidator.parseAsRoot([UUID().uuidString])
+      _ = try Validate.parseAsRoot([UUID().uuidString])
       error = nil
     } catch let caughtError {
       error = caughtError

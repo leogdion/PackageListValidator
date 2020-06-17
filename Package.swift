@@ -15,8 +15,8 @@ let package = Package(
       targets: ["PackageListValidator"]
     ),
     .executable(
-      name: "swiftpmls",
-      targets: ["swiftpmls"]
+      name: "validate",
+      targets: ["validate"]
     )
   ],
   dependencies: [
@@ -39,7 +39,7 @@ let package = Package(
       dependencies: [.product(name: "ArgumentParser", package: "swift-argument-parser"), "PromiseKit"]
     ),
     .target(
-      name: "swiftpmls",
+      name: "validate",
       dependencies: ["PackageListValidator"]
     ),
     .testTarget(
@@ -60,7 +60,7 @@ let package = Package(
         "swift run swiftformat .",
         "swift run swiftlint autocorrect",
         "swift run sourcedocs generate --spm-module PackageListValidator -r",
-        "swift run swiftpmls mine",
+        "swift run validate mine",
         "git add .",
         "swift run swiftformat --lint .",
         "swift run swiftlint"
