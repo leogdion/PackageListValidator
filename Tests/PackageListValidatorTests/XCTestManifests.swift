@@ -9,7 +9,7 @@
       ("testDefault", testDefault),
       ("testDefaultBranchName", testDefaultBranchName),
       ("testEmpty", testEmpty),
-      ("testMaster", testMaster),
+      ("testNoToken", testNoToken),
       ("testPassedError", testPassedError)
     ]
   }

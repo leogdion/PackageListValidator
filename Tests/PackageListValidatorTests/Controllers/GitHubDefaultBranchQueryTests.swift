@@ -44,7 +44,7 @@ import PackageListValidator
       }
     }
 
-    func testMaster() {
+    func testNoToken() {
       let branch = UUID().uuidString
 
       let session = MockSession(result: .success(GitHubRepo(defaultBranch: branch)), onURL: nil)
@@ -54,7 +54,7 @@ import PackageListValidator
 
       let exp = expectation(description: "does fetch branch name")
       query.defaultBranchName(forRepoName: repoName, withOwner: owner) { result in
-        XCTAssertEqual(try? result.get(), "master")
+        XCTAssertEqual(try? result.get(), branch)
 
         exp.fulfill()
       }
